@@ -13,7 +13,7 @@
 ************************************************************
 {
 
-use "$outpath/output/fii2018", clear
+use "$final/fii2018", clear
 
 *keep if age >18
 
@@ -102,13 +102,13 @@ twoway 	(bar est marker if cat == 1)  ///
 		xlab(2.5 `" "Involved in how"  "HH income is spent" "' 7.5 `" "Has influence" "on how HH income" "is spent if disagreement" "' 12.5 `" "Likely to voice" "disagreement on how" "HH income is spent`'" "' 17.5`" "Has final decision" "on how own"  "money is spent" "', ///
 		labsize(small) notick) 
 		
-gr export "$wpfig/HH_DecisionMaking.png", replace
+gr export "$fig/HH_DecisionMaking.png", replace
 }
 
 
 *Table 1
 {
-use "${outpath}/output/fii-clean-inprogress.dta", clear
+use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -184,9 +184,8 @@ tab2 included_bin2 anyownership
 lab var included_bin2 "Any Account with Formal Institution"
 *export table
 
-	cd "/Users/theys/Dropbox/Digital Finance/7 Data/analysis/fii/_latex/"
 
-sumtabgender hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn loanmicro loancoop  emoney invest haveother included_bin2, tablename("${wpfig}/ServicesByGender") title("Use of Financial Services by Males and Females") label("servgender") notes("")
+*sumtabgender hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn loanmicro loancoop  emoney invest haveother included_bin2, tablename("$fig/ServicesByGender") title("Use of Financial Services by Males and Females") label("servgender") notes("")
 
 
 
@@ -194,7 +193,7 @@ sumtabgender hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn lo
 
 *Table 2
 {
-use "${outpath}/output/fii-clean-inprogress.dta", clear
+use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -229,12 +228,12 @@ lab var any_withdraw "\bf{Any Withdrawl}"
 lab var any_deposit "\bf{Any Deposit}"
 
 
-sumtabgenderurban any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent, tablename("${wpfig}/TransactionTypes") title("Method of Account Withdrawls and Deposits") label("transtypetable") notes("Only asked of individuals who report currently having an individual or joint savings account at a bank. Captures transactions from the past 6 months.")
+*sumtabgenderurban any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent, tablename("${wpfig}/TransactionTypes") title("Method of Account Withdrawls and Deposits") label("transtypetable") notes("Only asked of individuals who report currently having an individual or joint savings account at a bank. Captures transactions from the past 6 months.")
 }
 
 *FIGURE: ATM Transaction Types
 {
- use "${outpath}/output/fii-clean-inprogress.dta", clear
+ use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -291,14 +290,14 @@ twoway (bar est marker if urban==0, barw(.45) yla(0(.2)1)) || (bar est marker if
 	xlab(1.25 "Withdrawl" 2.75 "Remit/Transfer" 4.25 "Deposit"  5.75 "Gov't Benefits" 7.25 "Purchases" 8.75 "Bill Pay" ,  labsize(small) )  xtit(" ") ytit("Share") ///
 	graphregion(color(white) fcolor(white))
 	
-	graph export "${wpfig}/ATM_Transactions.png", replace
+	graph export "$fig/ATM_Transactions.png", replace
 								
 restore
 }
 
 *Table 3
 {
- use "${outpath}/output/fii-clean-inprogress.dta", clear
+ use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -322,17 +321,17 @@ lab var timeto1 "Bank Branch"
 lab var timeto2 "ATM"
 lab var timeto4 "Laku Pandai Agent"
 
-sumtabtime timeto1 timeto2 timeto4, tablename("${wpfig}/timetable") title("Distance to Nearest Financial Service Access Points") label("timetable") notes("Distances topcoded at the 99th percentile")
+*sumtabtime timeto1 timeto2 timeto4, tablename("${wpfig}/timetable") title("Distance to Nearest Financial Service Access Points") label("timetable") notes("Distances topcoded at the 99th percentile")
 
 
 
 	
 }
 
-
+/*
 *FIGURE: Indonesia financial service heatmap
 {
-	use "$outpath/output/matched_shp_PODES.dta", clear
+	use "$final/matched_shp_PODES.dta", clear
 
 * Indonesia heatmap
 
@@ -358,7 +357,7 @@ sumtabtime timeto1 timeto2 timeto4, tablename("${wpfig}/timetable") title("Dista
 *FIGURE: Indonesia financial service PIE CHART
 {
 
-use "$outpath/temp/podes_popbank.dta", clear
+use "$temp/podes_popbank.dta", clear
 
 collapse (sum) population (count)  id, by(financialserv)
 
@@ -386,6 +385,7 @@ graph combine population village
  		 gr export "$wpfig/heatmappie.png", replace
 	
 }
+*/
 
 *FIGURE: Social protection participation
 {
@@ -410,7 +410,7 @@ graph combine population village
 
 *FIGURE: Phone Use Capabilities
 {
-use "${outpath}/output/fii-clean-inprogress.dta", clear
+use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -481,11 +481,11 @@ gen index = _n
 			xlabel( 1.5 "Calls" 4.5 "Navigate Menu" 7.5 "Text" 10.5 "Search Internet" 13.5 "Fin. Transaction" 16.5 "Download App" 20.5"Basic Tasks" 23.5"Advanced Tasks" 26.5"Total Tasks", angle(45)) ///
 			xline(18.5, lpattern(dash) lcolor(gs13)) 
 			
- 		 gr export "$wpfig/phonecapability.png", replace
+ 		 gr export "$final/phonecapability.png", replace
 
 }
 
- 
+/* 
 *FIGURE: Digital ability by education
 {
 	use "$outpath/temp/fii-digitalreadiness.dta", clear
@@ -590,12 +590,12 @@ twoway 	(bar est index2 if dl_ability == 1) || ///
 	
 	
 	}
-
+*/
 
 
 *FIGURE: Remittance by Channel
 {
-use "$outpath/output/sofia-merge.dta", clear
+use "$final/sofia-merge.dta", clear
 	
 	g cashonly_rec = remittance_rcv_method2==1 &  (remittance_rcv_method1==0 & remittance_rcv_method3==0 & remittance_rcv_method4==0) if remittance_received==1
 	g dig_rec = cashonly_rec==0 &  (remittance_rcv_method1==1 | remittance_rcv_method3==1 | remittance_rcv_method4==1) 	if remittance_received==1
@@ -615,12 +615,12 @@ use "$outpath/output/sofia-merge.dta", clear
 	
 	grc1leg a b, ycommon
 			
-	gr export "$wpfig/remittancechannel.png", replace
+	gr export "$final/remittancechannel.png", replace
 }
 
 *FIGURE: Account Shrouding
 {
-	use "$outpath/output/susenas-merge19.dta", clear
+	use "$final/susenas-merge19.dta", clear
 
 	gen all = 1
 	bys URUT: egen total_savacc = sum(saving_account)
@@ -706,14 +706,15 @@ use "$outpath/output/sofia-merge.dta", clear
 			label(2 "Both heads and other HH members")  label(3 "Only other HH members") size(vsmall) rows(2)) 
 			
 			
-	gr export "$wpfig/account_shroud_stack.png", replace
+	gr export "$fig/account_shroud_stack.png", replace
 }
 
 
 ****RANDOM FOREST*****
+/*
 *Table: Accuracy
 {
-use "${outpath}/output/fii-routput-accuracy-male.dta", clear
+use "$final/fii-routput-accuracy-male.dta", clear
 
 gen Sample = 3
 order Sample
@@ -721,7 +722,7 @@ order Sample
 	tempfile male 
 	save "`male'"
 	
-use "${outpath}/output/fii-routput-accuracy-fem.dta", clear
+use "$final/fii-routput-accuracy-fem.dta", clear
 
 gen Sample = 2
 order Sample
@@ -729,7 +730,7 @@ order Sample
 	tempfile female 
 	save "`female'"	
 	
-use "${outpath}/output/fii-routput-accuracy-full.dta", clear
+use "$final/output/fii-routput-accuracy-full.dta", clear
 
 gen Sample = 1
 order Sample
@@ -753,7 +754,7 @@ order Sample
  
 estpost tabstat NoInfo Overall Pvalue Sensitivity Specificity, by(Sample)  listwise statistics(mean) 
 
-	esttab using "${wpfig}/rfaccuracy.tex", ///
+	esttab using "$fig/rfaccuracy.tex", ///
 	cells("NoInfo(fmt(1) label(No Information Rate)) Overall(fmt(1)) Pvalue(fmt(2) label(P-Value*)) Sensitivity(fmt(1)) Specificity(fmt(1))") not noobs  nomtitle title(Random Forest Model Accuracy \label{rfacc}) ///
 				 varwidth(80) eqlabels(`e(eqlabels)')  replace nonum nostar drop("Total") label ///
 				 addnotes("*Null hypothesis is no difference in random forest’s overall accuracy and the no information rate")
@@ -767,7 +768,7 @@ estpost tabstat NoInfo Overall Pvalue Sensitivity Specificity, by(Sample)  listw
 *Table: Var Importance
 {
 				 
-use "${outpath}/output/fii-routput-varimp-full.dta", clear	
+use "$final/fii-routput-varimp-full.dta", clear	
 	gsort -Importance_rf
 	gen Rank = _n
 		gen varlab = "Receives Government Assistance" if Variables=="money_govt_asstYes"
@@ -793,7 +794,7 @@ use "${outpath}/output/fii-routput-varimp-full.dta", clear
 			tempfile overall
 			save "`overall'"
 		
-use "${outpath}/output/fii-routput-varimp-fem.dta", clear	
+use "$final/fii-routput-varimp-fem.dta", clear	
 	gsort -Importance_rf
 	gen Rank = _n
 		gen varlab = "Receives Government Assistance" if Variables=="money_govt_asstYes"
@@ -818,7 +819,7 @@ use "${outpath}/output/fii-routput-varimp-fem.dta", clear
 			tempfile female 
 			save "`female'"
 
-use "${outpath}/output/fii-routput-varimp-male.dta", clear	
+use "$final/fii-routput-varimp-male.dta", clear	
 	gsort -Importance_rf
 	gen Rank = _n
 		gen varlab = "Ever had BPJS Health" if Variables=="bpjs_healthYes"
@@ -871,7 +872,7 @@ use "${outpath}/output/fii-routput-varimp-male.dta", clear
 {
 
 	foreach y in fem male	{
-	use "${outpath}/output/fii-routput-varimp-`y'.dta", clear	
+	use "$final/fii-routput-varimp-`y'.dta", clear	
 		gsort -Importance_rf
 		gen Rank = _n	
 		keep if Rank<101
@@ -936,12 +937,12 @@ use "${outpath}/output/fii-routput-varimp-male.dta", clear
 
 	
 }
-
+*/
 
 *BOX 2: ONLINE SURVEY BY GENDER
 {
 ** BY GENDER **
-use "$outpath/output/onlinesurvey-dfspooled.dta", clear 
+use "$final/Online Survey-DFS Adoption_Covid-19/onlinesurvey-pooled.dta", clear 
 
 clear matrix
 set more off
@@ -1015,7 +1016,7 @@ twoway (bar est marker if dfs == 1) || ///
 		size(medsmall) cols(1)) ///
 		xlabel(3.5 "Female [n=`f']" 10.5 "Male [n=`m']", angle(hor) labsize(small) notick)
 			
-	gr export "$wpfig/onlinesurvey_gender.png", replace
+	gr export "$fig/onlinesurvey_gender.png", replace
 
 }
 
@@ -1024,7 +1025,7 @@ twoway (bar est marker if dfs == 1) || ///
 	
 ** ONLINE SHOPPING **
 * by gender
-use "$outpath/output/onlinesurvey-screened.dta", clear 
+use "$final/Online Survey-DFS Adoption_Covid-19/onlinesurvey-screened.dta", clear 
 
 clear matrix
 set more off
@@ -1095,7 +1096,7 @@ twoway	(bar est marker if buy == 1) || ///
 		label(2 "Some online") label(3 "Mostly online") size(vsmall) row(1)) ///
 		xlabel(1 "Female (n=`f')" 3 "Male (n=`m')", angle(hor) labsize(small) notick)
 			
-	gr export "$wpfig/onlinesurvey_ecomm.png", replace
+	gr export "$fig/onlinesurvey_ecomm.png", replace
 }
 
 			
@@ -1103,9 +1104,9 @@ twoway	(bar est marker if buy == 1) || ///
 
 
 
-*FIGURE: SES GRAIDENT
+*FIGURE: SES GRADIENT
 {
-use "${outpath}/output/fii-clean-inprogress.dta", clear
+use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16
@@ -1246,16 +1247,16 @@ twoway 	(bar est index if grpvar == 2 & outcome==2,  bcolor("242 196 19")   barw
 graph combine education urban age, ycommon title("E-Money Usage", size(medsmall))	col(1)	name("g2", replace)	
 	
 			
-	graph combine g1 g2, col(2) xsize(*.75)
+	graph combine g1 g2, col(2) xsize(4)
 			
-	gr export "$wpfig/sesgradient.png", replace
+	gr export "$fig/sesgradient.png", replace
 	
 }
 
 
 
 ***Online paper stats
-use "$outpath/output/onlinesurvey-generalpop.dta", clear 
+use "$final/Online Survey-DFS Adoption_Covid-19/onlinesurvey-generalpop.dta", clear 
 	g use_emoney = emoney_freq_num!=1 if !missing(emoney_freq_num)
 	g use_dbank = dbank_freq_num!=1 if !missing(dbank_freq_num)
 	

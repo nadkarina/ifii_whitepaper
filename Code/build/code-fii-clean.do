@@ -534,9 +534,9 @@ use "$temp/fii-merge.dta", clear
 					label var use_mobilemoney "Ever Used Mobile Money"		
 		
 
-save "$final/fii-all-clean-inprogress.dta", replace
+save "$final/fii-clean-inprogress.dta", replace
 
-use "$final/fii-all-clean-inprogress.dta", clear
+use "$final/fii-clean-inprogress.dta", clear
 
  keep if year==2018
  drop *year14 *year15 *year16

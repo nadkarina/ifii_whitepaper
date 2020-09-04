@@ -14,7 +14,7 @@
 
 
 *Read in Data 
-	use "$final/fii-all-clean-inprogress.dta", clear
+	use "$final/fii-clean-inprogress.dta", clear
 
 *Subset to 2018 (because the above is a dataset of all years)
 	keep if year==2018

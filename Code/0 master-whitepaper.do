@@ -26,8 +26,11 @@ gl final "$path\Database\Final Data"
 
 gl code "$path\Code"
 
+gl fig "$path\Tables_Figures"
+
 * C) INSTALL PACKAGES AND SCHEMES
 cap ssc install fre
+set scheme jpal
 
 
 ********************************************************************************
@@ -59,4 +62,4 @@ do "$code\build\code-susenas-clean-2019.do"
 
 
 *** Tables and Figures ***
-*do "$code\analysis\code-whitepaper-graph.do"
+do "$code\analysis\code-whitepaper-graph.do"
