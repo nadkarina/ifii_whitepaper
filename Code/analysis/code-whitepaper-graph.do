@@ -186,9 +186,7 @@ lab var included_bin2 "Any Account with Formal Institution"
 
 
 *sumtabgender hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn loanmicro loancoop  emoney invest haveother included_bin2, tablename("$fig/ServicesByGender") title("Use of Financial Services by Males and Females") label("servgender") notes("")
-
-
-
+// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?
 }
 
 *Table 2
@@ -229,6 +227,7 @@ lab var any_deposit "\bf{Any Deposit}"
 
 
 *sumtabgenderurban any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent, tablename("${wpfig}/TransactionTypes") title("Method of Account Withdrawls and Deposits") label("transtypetable") notes("Only asked of individuals who report currently having an individual or joint savings account at a bank. Captures transactions from the past 6 months.")
+// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?
 }
 
 *FIGURE: ATM Transaction Types
@@ -322,13 +321,10 @@ lab var timeto2 "ATM"
 lab var timeto4 "Laku Pandai Agent"
 
 *sumtabtime timeto1 timeto2 timeto4, tablename("${wpfig}/timetable") title("Distance to Nearest Financial Service Access Points") label("timetable") notes("Distances topcoded at the 99th percentile")
-
-
-
-	
+// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?	
 }
 
-/*
+/* CLOSED AS USING PODES, WHICH IS NOT YET FIGURED OUT
 *FIGURE: Indonesia financial service heatmap
 {
 	use "$final/matched_shp_PODES.dta", clear
@@ -481,11 +477,11 @@ gen index = _n
 			xlabel( 1.5 "Calls" 4.5 "Navigate Menu" 7.5 "Text" 10.5 "Search Internet" 13.5 "Fin. Transaction" 16.5 "Download App" 20.5"Basic Tasks" 23.5"Advanced Tasks" 26.5"Total Tasks", angle(45)) ///
 			xline(18.5, lpattern(dash) lcolor(gs13)) 
 			
- 		 gr export "$final/phonecapability.png", replace
+ 		 gr export "$fig/phonecapability.png", replace
 
 }
 
-/* 
+/* CLOSED AS CANNOT FIGURE OUT DO-FILE THAT GENERATE THE INPUT DATASET
 *FIGURE: Digital ability by education
 {
 	use "$outpath/temp/fii-digitalreadiness.dta", clear
@@ -615,7 +611,7 @@ use "$final/sofia-merge.dta", clear
 	
 	grc1leg a b, ycommon
 			
-	gr export "$final/remittancechannel.png", replace
+	gr export "$fig/remittancechannel.png", replace
 }
 
 *FIGURE: Account Shrouding
@@ -711,7 +707,7 @@ use "$final/sofia-merge.dta", clear
 
 
 ****RANDOM FOREST*****
-/*
+/* CLOSED AS OUTPUT DATASETS NOT YET INCLUDED
 *Table: Accuracy
 {
 use "$final/fii-routput-accuracy-male.dta", clear

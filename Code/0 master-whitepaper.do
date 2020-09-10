@@ -30,7 +30,9 @@ gl fig "$path\Tables_Figures"
 
 * C) INSTALL PACKAGES AND SCHEMES
 cap ssc install fre
-set scheme jpal
+// NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
+
+set scheme jpal			// NOTE: Do we want to include this?
 
 
 ********************************************************************************
@@ -38,8 +40,8 @@ set scheme jpal
 ********************************************************************************
 
 *** Financial Inclusion Insights (FII) ***
-do "$code\build\code-fii-clean.do"
-do "$code\build\code-fii-clean-randomforest.do" // NOTE: Some clarifications needed
+do "$code\build\code-fii-clean.do"					// NOTE: Some clarifications needed
+do "$code\build\code-fii-clean-randomforest.do"		// NOTE: Some clarifications needed
 
 
 *** Survey on Financial Inclusion and Access (SOFIA) ***
@@ -58,8 +60,8 @@ do "$code\build\code-susenas-clean-2019.do"
 ** STEP 2: Analysis and Creation of Tables and Figures
 ********************************************************************************
 
-*** Random Forest ***
+*** Random Forest (R codes) ***
 
 
 *** Tables and Figures ***
-do "$code\analysis\code-whitepaper-graph.do"
+do "$code\analysis\code-whitepaper-graph.do"		// NOTE: Some clarifications needed
