@@ -15,7 +15,7 @@
 
 use "$final/fii2018", clear
 
-*keep if age >18
+keep if age >17
 
 foreach var in general basic beyondbasic influence voicedisagree finaldecision ownmoney{
 	gen `var' = inlist(hhdecision_`var',4,5)
@@ -518,6 +518,8 @@ gen index = _n
 {
 	use "$final/fii2018.dta", clear
 	
+	keep if age >17
+
 	* Education
 	rename hs_orhigher higherhs
 	
