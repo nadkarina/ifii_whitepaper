@@ -55,6 +55,7 @@ do "$code\build\code-sofia-clean.do"
 
 *** Potensi Desa (PODES) ***
 do "$code\build\code-podes-shp-combine-match.do"
+do "$code\build\code-podes-code-podes-popbank.do"
 
 
 *** Survei Sosio Ekonomi Nasional (SUSENAS) ***
