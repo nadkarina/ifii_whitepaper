@@ -1,5 +1,5 @@
 
-import delimited "${code}/build/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) clear
+import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) clear
 
 *use excel codebook
 
@@ -397,7 +397,7 @@ gen informal = loanmulti == 1 | loanpawn == 1 | loanmicro == 1 | savmicro == 1 |
 
 
 
-		save "${code}/build/fii2018", replace					
+		save "${final}/fii2018", replace					
 
 
 *RANDOM FOREST BELOW
@@ -887,7 +887,7 @@ replace ability_fintrans = 5 if ability_fintrans==0
 	rename Fnx_ATM_debit ownership
 	
 *SAVE DATASET
-	save "${code}/build/fii-clean-randomforestprofiles.dta", replace
+	save "${final}/fii-clean-randomforestprofiles.dta", replace
 	
 
 

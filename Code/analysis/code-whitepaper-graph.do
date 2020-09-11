@@ -17,21 +17,18 @@ use "$final/fii2018", clear
 
 keep if age >17
 
-foreach var in general basic beyondbasic influence voicedisagree finaldecision ownmoney{
-	gen `var' = inlist(hhdecision_`var',4,5)
-	replace `var' = . if hhdecision_`var'==-2
+foreach var in invovle_hhinc influence_spending voice_disagreement finaldec_ownmoney{
+	gen `var'_sub = inlist(`var',4,5)
+	replace `var'_sub = . if `var'==-2
 }
 
-// gen basic = inlist(hhdecision_basic,4,5)
-// gen beyond = inlist(hhdecision_beyondbasic,4,5)
-// gen final = inlist(hhdecision_final,4,5)
 
 mat res=J(100,5,.)
  local row = 1
  local k=1
  
-	 foreach group in general influence voicedisagree ownmoney {
-			reg `group' female if married == 1 [w=weight_year18]
+	 foreach group in invovle_hhinc_sub influence_spending_sub voice_disagreement_sub finaldec_ownmoney_sub {
+			reg `group' female if married == 1 [w=weight]
 				//female head or spouse
 					lincom _b[_cons]+_b[female]
 						mat res[`row',1]= r(estimate)
@@ -49,7 +46,7 @@ mat res=J(100,5,.)
 						mat res[`row',5]= 2
 					local ++row
 					
-			reg `group' female if married == 0 [w=weight_year18]
+			reg `group' female if married == 0 [w=weight]
 				//female head or spouse
 					lincom _b[_cons]+_b[female]
 						mat res[`row',1]= r(estimate)
@@ -108,95 +105,30 @@ gr export "$fig/HH_DecisionMaking.png", replace
 
 *Table 1
 {
-use "$final/fii-clean-inprogress.dta", clear
+use "$final/fii2018.dta", clear
 
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
+lab var included_bin2 "Any Formal Account Ownership"
 
-*SNKI INDICATORS
-* 1) Currently has between 1 and 100 ATM cards in their own name [bi_e27a]
-gen hasatm = bi_e27a>0 & bi_e27a<100
-lab var hasatm "ATM Card"
+estpost tabstat hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn loanmicro loancoop  emoney invest haveother included_bin2, by(female) listwise statistics(mean) columns(statistics) esample 	
+		
+		cd "$fig"
+		esttab using "ServicesByGender.tex", cells("mean(fmt(2) label())") ///
+		noobs not ///
+		label ///
+		varlabels(`e(labels)') varwidth(80) ///
+		replace nostar unstack fragment compress tex nonum /// 
+		prehead("`toptext' \begin{table}[H] \begin{adjustbox}{max width=\textwidth} \begin{threeparttable} \caption{Use of Financial Services by Males and Females} \label{servgender} {\begin{tabular}{l*{1}{llll}} \hline  & Males & Females & Overall \\") ///
+		prefoot("\hline")  ///
+		posthead("\hline")  ///
+		postfoot("\end{tabular}} \end{threeparttable} \end{adjustbox} \end{table} \vspace*{-5mm}")			
+		
 
-* 2) Loan from multi-finance [ojk16_1 ojk16_2 ojk16_3 ojk16_4]
-gen loanmulti = inlist(ojk16_1, 1, 2, 3) | inlist(ojk16_2, 1, 2, 3) | inlist(ojk16_3, 1, 2, 3) | inlist(ojk16_4, 1, 2, 3)
-lab var loanmulti "Loan from Multifinance"
-
-* 3) Loan from Pawnshop [ojk19_1 ojk19_2 ojk19_3]
-gen loanpawn = inlist(ojk19_1, 1, 2, 3) | inlist(ojk19_2, 1, 2, 3) | inlist(ojk19_3, 1, 2, 3)
-lab var loanpawn "Loan from Pawnshop"
-
-* 4) Loan from Microfinance (incl Sharia) [ojk24_1, ojk26_1]
-gen loanmicro = inlist(ojk24_1, 1, 2, 3) | inlist(ojk26_1, 1, 2, 3)
-lab var loanmicro "Loan from Microfinance"
-
-* 5) Savings at Microfinance (incl Sharia) [ojk24_2, ojk26_2]
-gen savmicro = inlist(ojk24_2, 1, 2, 3) | inlist(ojk26_2, 1, 2, 3)
-lab var savmicro "Savings Account from Microfinance"
-
-* 6) Loan from Cooperative [ojk25_1]
-gen loancoop = inlist(ojk25_1, 1, 2, 3)  
-lab var loancoop "Loan from Cooperative"
-
-* 7) Savings at Cooperative [ojk25_2]
-gen savecoop = inlist(ojk25_2, 1, 2, 3)  
-lab var savecoop "Savings Account from Cooperative"
-
-* 8) BSA [bi_e5s]
-gen bsa = inlist(bi_e5s, 1)  
-lab var bsa "Basic Savings Account"
-
-* 10) investments ojk18_1 ojk18_2 ojk20_1 ojk20_2 ojk21_1
-gen invest = inlist(ojk18_1, 1, 2, 3) | inlist(ojk18_2, 1, 2, 3) | inlist(ojk20_1, 1, 2, 3) | inlist(ojk20_2, 1, 2, 3) | inlist(ojk21_1, 1, 2, 3)
-lab var invest "Investments"
-
-*NON SNKI
-
-* 9) e-money [bi_e26d] Note: SNKI used bi_e25d
-gen emoney = inlist(bi_e26d, 1)  
-lab var emoney "Electronic Money"
-
-*11) savings account
-gen savings =  inlist(ojk14_1, "1", "2", "3") | inlist(ojk14_2, "1", "2", "3") | inlist(ojk14_3, "1", "2", "3")
-  lab var savings "Savings Account at Bank"
- 
-
-*12) loans from bank
-gen loanbank =  inlist(ojk14_5, "1", "2", "3") | inlist(ojk14_6, "1", "2", "3") | inlist(ojk14_7, "1", "2", "3") | inlist(ojk14_8, "1", "2", "3") | inlist(ojk14_9, "1", "2", "3") | inlist(ojk14_10, "1", "2", "3") | inlist(ojk14_12, "1", "2", "3") | inlist(ojk14_13, "1", "2", "3")
-  lab var loanbank "Loan at Bank"
-
-
-*make an indicator that they have any of these products
-egen included = rowtotal(hasatm loanmulti loanpawn loanmicro savmicro loancoop savecoop bsa emoney invest loanbank savings)
-gen included_bin = included>0
-tab2 included_bin anyownership
-
-*gen have some account but we don't know what type
-gen haveother = (included_bin==0 & Fnx_ATM_debit==1) |  (included_bin==0 & loan_save==1)
-lab var haveother "Account or Loan - Unknown Source"
-
-*has any again
-egen included2 = rowtotal(included haveother)
-gen included_bin2 = included2>0
-tab2 included_bin2 anyownership
-lab var included_bin2 "Any Account with Formal Institution"
-*export table
-
-
-*sumtabgender hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn loanmicro loancoop  emoney invest haveother included_bin2, tablename("$fig/ServicesByGender") title("Use of Financial Services by Males and Females") label("servgender") notes("")
-// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?
 }
 
 *Table 2
 {
-use "$final/fii-clean-inprogress.dta", clear
+use "$final/fii2018.dta", clear
 
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
 
 *deposits
 	gen any_deposit = (bi_e9a=="1" | bi_e9b=="1" | bi_e9c=="1" | bi_e9v=="1") if (bi_e9a!=" "| bi_e9b!=" " | bi_e9c!=" " | bi_e9v!=" ")
@@ -232,12 +164,7 @@ lab var any_deposit "\bf{Any Deposit}"
 
 *FIGURE: ATM Transaction Types
 {
- use "$final/fii-clean-inprogress.dta", clear
-
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
+ use "$final/fii2018", clear
  
 	gen use_atm_purchase = bi_e28a_a == "1" if bi_e28a_a!= " "
 	gen use_atm_withdraw =  bi_e28a_b == "1" if bi_e28a_b!= " "
@@ -438,12 +365,7 @@ graph combine population village
 
 *FIGURE: Phone Use Capabilities
 {
-use "$final/fii-clean-inprogress.dta", clear
-
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
+use "$final/fii2018", clear
  
  
  g calls = mt18a_1==3 | mt18a_1==4 if mt18a_1!=-2
@@ -541,7 +463,7 @@ gen index = _n
  foreach group2 in noedu primary jrhigh hs higherhs {
 			local k=1
 			foreach group in complete compsome {
-				reg `group' own_smartphone if `group2'==1  [w=weight_year18], clu(province)
+				reg `group' own_smartphone if `group2'==1  [w=weight], clu(province)
 					lincom _b[_cons]+_b[own_smartphone]
 					mat res[`row',1]= r(estimate)
 					mat res[`row',2]= r(estimate)-1.96*r(se)
@@ -1145,13 +1067,7 @@ twoway	(bar est marker if buy == 1) || ///
 
 *FIGURE: SES GRADIENT
 {
-use "$final/fii-clean-inprogress.dta", clear
-
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
-
+use "$final/fii2018.dta", clear
  
  gen edu_cat = 0 if highestedu_respondent==1 | highestedu_respondent==9
  replace edu_cat = 1 if highestedu_respondent==2

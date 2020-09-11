@@ -11,24 +11,25 @@ clear all
 cap log close
 
 * B) WORKING FOLDER PATH
-*gl path gl path "...\GitHub\ifii_whitepaper"
-gl path "C:\Users\Nadia Setiabudi\Documents\GitHub\ifii_whitepaper"
+*gl path gl path ".../GitHub/ifii_whitepaper"
+gl path "C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper"
+gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
 
 *** The following paths will update automatically ***
-gl raw "$path\Database\Raw Data"
-	gl fii "$raw\FII data"
-	gl susenas19 "$raw\Susenas 2019"
-	gl podes18 "$raw\PODES 2018"
-	gl podes11 "$raw\PODES 2011"
-	gl shp "$raw\Shapefile 2019"
-	gl sofia "$raw\SOFIA 2016"
+gl raw "$path/Database/Raw Data"
+	gl fii "$raw/FII data"
+	gl susenas19 "$raw/Susenas 2019"
+	gl podes18 "$raw/PODES 2018"
+	gl podes11 "$raw/PODES 2011"
+	gl shp "$raw/Shapefile 2019"
+	gl sofia "$raw/SOFIA 2016"
 
-gl temp "$path\Database\temp"
-gl final "$path\Database\Final Data"
+gl temp "$path/Database/temp"
+gl final "$path/Database/Final Data"
 
-gl code "$path\Code"
+gl code "$path/Code"
 
-gl fig "$path\Tables_Figures"
+gl fig "$path/Tables_Figures"
 
 * C) INSTALL PACKAGES AND SCHEMES
 *cap ssc install fre
@@ -45,21 +46,21 @@ set scheme jpal
 ********************************************************************************
 
 *** Financial Inclusion Insights (FII) ***
-do "$code\build\code-fii-clean.do"					
-do "$code\build\code-fii-clean-randomforest.do"	
+do "$code/build/code-fii-clean.do"					
+do "$code/build/code-fii-clean-randomforest.do"	
 
 
 *** Survey on Financial Inclusion and Access (SOFIA) ***
-do "$code\build\code-sofia-clean.do"
+do "$code/build/code-sofia-clean.do"
 
 
 *** Potensi Desa (PODES) ***
-do "$code\build\code-podes-shp-combine-match.do"
-do "$code\build\code-podes-code-podes-popbank.do"
+do "$code/build/code-podes-shp-combine-match.do"
+do "$code/build/code-podes-code-podes-popbank.do"
 
 
 *** Survei Sosio Ekonomi Nasional (SUSENAS) ***
-do "$code\build\code-susenas-clean-2019.do"
+do "$code/build/code-susenas-clean-2019.do"
 
 
 
@@ -71,4 +72,4 @@ do "$code\build\code-susenas-clean-2019.do"
 
 
 *** Tables and Figures ***
-do "$code\analysis\code-whitepaper-graph.do"		// NOTE: NEED TO UPDATE BASED ON MOST RECENT CODES
+do "$code/analysis/code-whitepaper-graph.do"		// NOTE: NEED TO UPDATE BASED ON MOST RECENT CODES
