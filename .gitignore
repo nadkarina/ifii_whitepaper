@@ -6,3 +6,12 @@
 *.sav
 *.xls
 *.pdf
+*.cpg
+*.prj
+*.qpj
+*.sbn
+*.sbx
+*.shp
+*.shx
+*.xml
+*.zip

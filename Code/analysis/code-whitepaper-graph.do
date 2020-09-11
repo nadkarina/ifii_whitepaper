@@ -324,16 +324,31 @@ lab var timeto4 "Laku Pandai Agent"
 // NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?	
 }
 
-/* CLOSED AS USING PODES, WHICH IS NOT YET FIGURED OUT
+
 *FIGURE: Indonesia financial service heatmap
 {
-	use "$final/matched_shp_PODES.dta", clear
+use "$final\matchedfin_shp_PODES.dta", clear
+gen bank = r1208ak2 + r1208bk2 +r1208ck2
+gen bank2 = bank > 0
+replace bank2 = 0 if bank == . 
+gen atm = r1209ck2 == 1
+gen agent = r1209gk2 == 1
+
+gen financialserv = bank2 == 1
+replace financialserv = 2 if bank2 == 0 & atm == 1
+replace financialserv = 3 if bank2 == 0 & atm == 0 & agent == 1
+replace financialserv = 4 if _m != 3
+
+drop if _ID == . //dropping the unmatched
+destring provno, replace
+
+
 
 * Indonesia heatmap
 
 	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 	
-	spmap financialserv using "$shp19/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
+	spmap financialserv using "$shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
 	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
 	polygon(data("$outpath/temp/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
 	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
@@ -346,24 +361,23 @@ lab var timeto4 "Laku Pandai Agent"
 	graph pie provno, over(financialserv)
 	legend(ring(0) pos(0)) yscale(off)
 	
-	gr export "$wpfig/heatmap_financialserv.png", replace
+	gr export "$fig/heatmap_financialserv.png", replace
 }
 
 
 *FIGURE: Indonesia financial service PIE CHART
 {
-
-use "$temp/podes_popbank.dta", clear
+use "$final/podes_popbank.dta", clear
 
 collapse (sum) population (count)  id, by(financialserv)
 
-	label define FIN 0 "No bank service" 1 "Have bank office" 2 "No bank, but have ATM" 3 "No bank or ATM, but have agent", replace
+	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM, but Agent" 4"No Data", replace
 	label values financialserv FIN
 
 colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 
 * Indonesia population pie chart
-graph pie population, over(financialserv) legend(off ///
+graph pie population, over(financialserv) legend(off) ///
 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
 	title("Population", size(vhuge)) ///
 	plotregion(color(white) fcolor(white)) ///
@@ -378,11 +392,29 @@ graph pie id, over(financialserv) legend(off) ///
 
 graph combine population village 
 
- 		 gr export "$wpfig/heatmappie.png", replace
+ 		 gr export "$fig/heatmappie.png", replace
+		 
+*Janky way to get legend
+	local new = _N + 1
+    set obs `new'
+	replace financialserv = 4 if financialserv==.
+		replace population =1 if financialserv==4
 	
-}
-*/
+	
+	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
+	
+	
+	gr export "$fig/heatmap_legend1.png", replace
 
+	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
+	
+	
+	gr export "$fig/heatmap_legend2.png", replace
+}
+
+// NOTE: THIS CAN BE REMOVED RIGHT?
 *FIGURE: Social protection participation
 {
 // 	use "$outpath/output/susenas-merge19_allage.dta", clear
@@ -481,15 +513,24 @@ gen index = _n
 
 }
 
-/* CLOSED AS CANNOT FIGURE OUT DO-FILE THAT GENERATE THE INPUT DATASET
+
 *FIGURE: Digital ability by education
 {
-	use "$outpath/temp/fii-digitalreadiness.dta", clear
+	use "$final/fii2018.dta", clear
+	
+	* Education
+	rename hs_orhigher higherhs
+	
+	foreach var in 	noedu primary jrhigh hs higherhs {
+		replace `var'=. if edu1==1
+	}
+
 
 	gen complete = mt18a_4 == 4 | mt18a_6 == 4
 	gen compsome = inlist(mt18a_4,3,4) | inlist(mt18a_6, 8,3,4)
 	
-	g province = aa1_year18
+	
+	*g province = aa1_year18
 
  mat res=J(150,5,.)
  local j = 1
@@ -530,7 +571,7 @@ twoway 	(bar est index2 if dl_ability == 1) || ///
 			10.5 "High School" 13.5 "University", angle(hor) labsize(vsmall) notick) ///
 			xtit(" ", size(small))
 			
-	gr export "$wpfig/litbyeducation.png", replace
+	gr export "$fig/litbyeducation.png", replace
 }
 
 

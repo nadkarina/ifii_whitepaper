@@ -18,8 +18,10 @@ gl path "C:\Users\Nadia Setiabudi\Documents\GitHub\ifii_whitepaper"
 gl raw "$path\Database\Raw Data"
 	gl fii "$raw\FII data"
 	gl susenas19 "$raw\Susenas 2019"
-	gl podes
-	gl sofia "$raw\SOFIA"
+	gl podes18 "$raw\PODES 2018"
+	gl podes11 "$raw\PODES 2011"
+	gl shp "$raw\Shapefile 2019"
+	gl sofia "$raw\SOFIA 2016"
 
 gl temp "$path\Database\temp"
 gl final "$path\Database\Final Data"
@@ -29,10 +31,13 @@ gl code "$path\Code"
 gl fig "$path\Tables_Figures"
 
 * C) INSTALL PACKAGES AND SCHEMES
-cap ssc install fre
+*cap ssc install fre
+*net from http://www.stata-journal.com/software/sj15-4		// Install dropmiss
+*net install dm0085											// Install dropmiss
+*net install dm89_2											// Install dropmiss
 // NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
 
-set scheme jpal			// NOTE: Do we want to include this?
+set scheme jpal
 
 
 ********************************************************************************
@@ -40,8 +45,8 @@ set scheme jpal			// NOTE: Do we want to include this?
 ********************************************************************************
 
 *** Financial Inclusion Insights (FII) ***
-do "$code\build\code-fii-clean.do"					// NOTE: Some clarifications needed
-do "$code\build\code-fii-clean-randomforest.do"		// NOTE: Some clarifications needed
+do "$code\build\code-fii-clean.do"					
+do "$code\build\code-fii-clean-randomforest.do"	
 
 
 *** Survey on Financial Inclusion and Access (SOFIA) ***
@@ -49,6 +54,7 @@ do "$code\build\code-sofia-clean.do"
 
 
 *** Potensi Desa (PODES) ***
+do "$code\build\code-podes-shp-combine-match.do"
 
 
 *** Survei Sosio Ekonomi Nasional (SUSENAS) ***
@@ -64,4 +70,4 @@ do "$code\build\code-susenas-clean-2019.do"
 
 
 *** Tables and Figures ***
-do "$code\analysis\code-whitepaper-graph.do"		// NOTE: Some clarifications needed
+do "$code\analysis\code-whitepaper-graph.do"		// NOTE: NEED TO UPDATE BASED ON MOST RECENT CODES
