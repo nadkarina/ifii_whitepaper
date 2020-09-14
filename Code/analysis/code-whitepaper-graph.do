@@ -223,12 +223,14 @@ restore
 
 *Table 3
 {
- use "$final/fii-clean-inprogress.dta", clear
+ use "$final/fii2018.dta", clear
 
+ /*
  keep if year==2018
  drop *year14 *year15 *year16
  drop weight age
  rename *_year18 *
+ */
 	
 forvalues i=1/14{
 	destring ifi15_`i'b, replace
@@ -275,18 +277,19 @@ destring provno, replace
 
 	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 	
-	spmap financialserv using "$shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
+	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
 	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
-	polygon(data("$outpath/temp/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
+	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
 	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
 	label(5 "No Bank Office or ATM, Only Bank Agent") label(6 "No Data") ) ///
 	legorder(lohi) legend(ring(1) position(6) ///
 		rows(1))  
-
+	/*
 	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM but Agent" 4"No Data", replace
 	lab values financialserv FIN
-	graph pie provno, over(financialserv)
+	graph pie provno, over(financialserve
 	legend(ring(0) pos(0)) yscale(off)
+	*/
 	
 	gr export "$fig/heatmap_financialserv.png", replace
 }
@@ -294,7 +297,7 @@ destring provno, replace
 
 *FIGURE: Indonesia financial service PIE CHART
 {
-use "$final/podes_popbank.dta", clear
+use "$final/podes-popbank.dta", clear
 
 collapse (sum) population (count)  id, by(financialserv)
 
@@ -341,27 +344,6 @@ graph combine population village
 	gr export "$fig/heatmap_legend2.png", replace
 }
 
-// NOTE: THIS CAN BE REMOVED RIGHT?
-*FIGURE: Social protection participation
-{
-// 	use "$outpath/output/susenas-merge19_allage.dta", clear
-// 		gen all = 1
-// 		gen foodtransfer = raskin == 1 | bpnt == 1
-		
-// 		twoway  (lpoly pkh pct [aw=wt_hh], deg(3) lcolor("227 89 37")) || ///
-// 				(lpoly pip pct [aw=wt_hh], deg(3) lcolor(gs12)) || ///
-// 				(lpoly foodtransfer pct [aw=wt_hh], deg(3) lcolor("45 171 159")) || ///
-// 				(lpoly jkn_pbi pct [aw=wt_hh], deg(3) lcolor("242 196 19")) || ///
-// 				(lpoly lpg pct [aw=wt_hh], deg(3) lcolor(gs4)), ///
-// 				ytit("Share", size(small)) ///
-// 				graphregion(color(white) fcolor(white)) ///
-// 				yscale(range(0 1)) ylab(#5, labsize(small)) ///
-// 				xlab(1 "Poorest" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6" 7 "7" ///
-// 				8 "8" 9 "9" 10 "Richest", angle(hor) labsize(small) notick) ///
-// 				legend( on order(1 2 3 4 5) label(1 "PKH") label(2 "PIP") label(3 "Ranstra/BPNT") label(4 "JKN-PBI") ///
-// 				label(5 "LPG 3kg") size(small) rows(1)) xtit("Consumption percentile", size(small))  
-// 		 gr export "$wpfig/leakages socprot.png", replace
-}
 
 *FIGURE: Phone Use Capabilities
 {
@@ -498,60 +480,6 @@ twoway 	(bar est index2 if dl_ability == 1) || ///
 	gr export "$fig/litbyeducation.png", replace
 }
 
-
-*TABLE: Remittance Estimates [SOMETHING IS WRONG WITH THIS TABLE]
-{
-// use "$outpath/output/sofia-merge.dta", clear
-// 	g everremit = remittance_received==1 | remittance_sent==1
-	
-// 	g urban = STATUS=="URBAN"
-// 	g female = female_ind
-// 	g weight = wt_vil
-// 	g dataset = "SOFIA"
-	
-// 	keep everremit urban female weight dataset
-		
-// 		tempfile sofia 
-// 		save "`sofia'"
-		
-// use "${outpath}/output/fii-clean-inprogress.dta", clear
-
-//  keep if year==2018
-//  drop *year14 *year15 *year16
-//  drop weight age
-//  rename *_year18 *
- 
- 
-//  *east java
-//  keep if province== 11 | province==22 | province==23 | province==32
-//  g everremit = bi_e28a_d=="1" | bi_e28b_d=="1" | ojk10_3==1 | dl4_4==1 |  dl4_5==1
- 
-//  g dataset = "FII"
-
- 
-//  	keep everremit urban female weight dataset
-	
-// 	append using "`sofia'"
-	
-// 	*male rural
-// 	sum everremit if urban==0 & female==0 & dataset=="FII" [w=weight]
-// 	sum everremit if urban==0 & female==0 & dataset=="SOFIA" [w=weight]
-	
-// 	*female rural
-// 	sum everremit if urban==0 & female==1 & dataset=="FII" [w=weight]
-// 	sum everremit if urban==0 & female==1 & dataset=="SOFIA" [w=weight]	
-
-// 	*male urban
-// 	sum everremit if urban==1 & female==0 & dataset=="FII" [w=weight]
-// 	sum everremit if urban==1 & female==0 & dataset=="SOFIA" [w=weight]
-	
-// 	*female urban
-// 	sum everremit if urban==1 & female==1 & dataset=="FII" [w=weight]
-// 	sum everremit if urban==1 & female==1 & dataset=="SOFIA" [w=weight]		
-	
-	
-	}
-*/
 
 
 *FIGURE: Remittance by Channel
@@ -1207,16 +1135,3 @@ graph combine education urban age, ycommon title("E-Money Usage", size(medsmall)
 	gr export "$fig/sesgradient.png", replace
 	
 }
-
-
-
-***Online paper stats
-use "$final/Online Survey-DFS Adoption_Covid-19/onlinesurvey-generalpop.dta", clear 
-	g use_emoney = emoney_freq_num!=1 if !missing(emoney_freq_num)
-	g use_dbank = dbank_freq_num!=1 if !missing(dbank_freq_num)
-	
-	foreach var in use_emoney use_dbank{
-			reg `var' i.female [aw=weight]
-			lincom _cons+1.female
-	}
-

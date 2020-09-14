@@ -44,5 +44,5 @@ merge 1:1 kode_prov kode_kab kode_kec kode_desa nama_desa using "$temp\podes_pop
 keep if _m == 3 //only the matched ones, need some manual work for this to increase the match
 
 	gen id = _n
-save "$final\podes_popbank.dta", replace
+save "$final\podes-popbank.dta", replace
 

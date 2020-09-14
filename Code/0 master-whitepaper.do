@@ -17,7 +17,7 @@ gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
 
 *** The following paths will update automatically ***
 gl raw "$path/Database/Raw Data"
-	gl fii "$raw/FII data"
+	gl fii "$raw/FII 2018-19"
 	gl susenas19 "$raw/Susenas 2019"
 	gl podes18 "$raw/PODES 2018"
 	gl podes11 "$raw/PODES 2011"
@@ -36,6 +36,9 @@ gl fig "$path/Tables_Figures"
 *net from http://www.stata-journal.com/software/sj15-4		// Install dropmiss
 *net install dm0085											// Install dropmiss
 *net install dm89_2											// Install dropmiss
+*net from http://www.stata-journal.com/software/sj14-2/		// Install estpost
+*net install st0085_2										// Install estpost
+
 // NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
 
 set scheme jpal
@@ -47,7 +50,6 @@ set scheme jpal
 
 *** Financial Inclusion Insights (FII) ***
 do "$code/build/code-fii-clean.do"					
-do "$code/build/code-fii-clean-randomforest.do"	
 
 
 *** Survey on Financial Inclusion and Access (SOFIA) ***
@@ -56,11 +58,11 @@ do "$code/build/code-sofia-clean.do"
 
 *** Potensi Desa (PODES) ***
 do "$code/build/code-podes-shp-combine-match.do"
-do "$code/build/code-podes-code-podes-popbank.do"
+do "$code/build/code-podes-popbank.do"
 
 
 *** Survei Sosio Ekonomi Nasional (SUSENAS) ***
-do "$code/build/code-susenas-clean-2019.do"
+do "$code/build/code-susenas-clean.do"
 
 
 

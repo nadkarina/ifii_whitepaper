@@ -1,4 +1,13 @@
+* ******************************************************************************
+* PROGRAM: FII DATA PREPARATION FOR ANALYSIS
+* PROGRAMMER: Natalie Theys
+* PURPOSE: Create a clean FII dataset
+* DATE CREATED: 17 December 2019
+* LAST MODIFIED: 14 September 2020
+* ******************************************************************************
 
+
+** IMPORT DATASET **
 import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) clear
 
 *use excel codebook
@@ -400,38 +409,11 @@ gen informal = loanmulti == 1 | loanpawn == 1 | loanmicro == 1 | savmicro == 1 |
 		save "${final}/fii2018", replace					
 
 
-*RANDOM FOREST BELOW
-* ******************************************************************************
-* PROGRAM: FII DATA PREPARATION FOR RANDOM FORESTS
-* PROGRAMMER: Natalie Theys
-* PURPOSE: Data Cleaning and Prep for Random Forests
-*			This means all categorical variables have to be labeled, all observations
-*			must have complete data
-* DATE CREATED: 26 Feb 2020
-* ******************************************************************************
-
-
-
-*Run master do file for file paths
-
-// 	if "`c(username)'" =="theys" {
-// 		global pathdo "/Users/`c(username)'/Documents/GitHub/digifin_sea/0 master-fii.do"
-// 			}
-// 	do "${pathdo}"
-
-// ********************************************************************************
+** PREPARE DATA FOR RANDOM FOREST
+********************************************************************************
 *************************** CLEAN AND PREP DATA ********************************
 ********************************************************************************
 
-
-// *Read in Data 
-// 	use "$outpath/output/fii-clean-inprogress.dta", clear
-
-// *Subset to 2018 (because the above is a dataset of all years)
-// 	keep if year==2018
-// 	drop *_year14 *_year15 *_year16 age_year18 weight_year18
-// 	rename *_year18 *
-// 	rename dl1_year18_raw dl1_raw
 	
 *Create vars for use and depth of use in past 6 months
 	destring dl2, replace
@@ -889,6 +871,3 @@ replace ability_fintrans = 5 if ability_fintrans==0
 *SAVE DATASET
 	save "${final}/fii-clean-randomforestprofiles.dta", replace
 	
-
-
-
