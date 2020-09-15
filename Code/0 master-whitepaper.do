@@ -41,6 +41,7 @@ gl fig "$path/Tables_Figures"
 
 // NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
 
+cd "${code}/analysis"
 set scheme jpal
 
 

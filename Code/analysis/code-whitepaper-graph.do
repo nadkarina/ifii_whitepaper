@@ -20,7 +20,7 @@ keep if age >17
 foreach var in invovle_hhinc influence_spending voice_disagreement finaldec_ownmoney{
 	gen `var'_sub = inlist(`var',4,5)
 	replace `var'_sub = . if `var'==-2
-}
+			}
 
 
 mat res=J(100,5,.)
@@ -87,17 +87,17 @@ mat colnames res= est ul ll indic cat
 		}
 		}
 	
-twoway 	(bar est marker if cat == 1)  ///
+twoway 	(bar est marker if cat == 1, bcolor("227 89 37"))  ///
 		(bar est marker if cat == 3, bcolor("227 89 37") fintensity(inten60))   ///
 		(bar est marker if cat == 2, bcolor("45 171 159"))   ///
 		(bar est marker if cat == 4, bcolor("45 171 159") fintensity(inten60))  , ///
 		ytit("Share", size(small)) ///
 		graphregion(color(white) fcolor(white)) ///
 		yscale(range(0 1)) ylab(#6, labsize(small)) ///
-		legend( on order(1 2 3 4) label(1 "Married Females") label(2 "Unmarried Females") label(3 "Married Males") label(4 "Unmarried Males") symysize(*.6) symxsize(*.6) ///
-		size(vsmall) rows(1)) xtit(" ")  ///
+		legend(on order(1 2 3 4) label(1 "Married Females") label(2 "Unmarried Females") label(3 "Married Males") label(4 "Unmarried Males") symysize(*.6) symxsize(*.6) ///
+		size(small) rows(1) region(lwidth(none)) span) xtit(" ")  ///
 		xlab(2.5 `" "Involved in how"  "HH income is spent" "' 7.5 `" "Has influence" "on how HH income" "is spent if disagreement" "' 12.5 `" "Likely to voice" "disagreement on how" "HH income is spent`'" "' 17.5`" "Has final decision" "on how own"  "money is spent" "', ///
-		labsize(small) notick) 
+		labsize(small) notick)  
 		
 gr export "$fig/HH_DecisionMaking.png", replace
 }
@@ -115,9 +115,9 @@ estpost tabstat hasatm savings bsa savmicro savecoop loanbank loanmulti loanpawn
 		esttab using "ServicesByGender.tex", cells("mean(fmt(2) label())") ///
 		noobs not ///
 		label ///
-		varlabels(`e(labels)') varwidth(80) ///
+		varlabels(`e(labels)') collabels(none) varwidth(80) ///
 		replace nostar unstack fragment compress tex nonum /// 
-		prehead("`toptext' \begin{table}[H] \begin{adjustbox}{max width=\textwidth} \begin{threeparttable} \caption{Use of Financial Services by Males and Females} \label{servgender} {\begin{tabular}{l*{1}{llll}} \hline  & Males & Females & Overall \\") ///
+		prehead("\begin{table}[H] \begin{adjustbox}{max width=\textwidth} \begin{threeparttable} \caption{Use of Financial Services by Males and Females} \label{servgender} {\begin{tabular}{l*{1}{llll}} \hline  & Males & Females & Overall \\") ///
 		prefoot("\hline")  ///
 		posthead("\hline")  ///
 		postfoot("\end{tabular}} \end{threeparttable} \end{adjustbox} \end{table} \vspace*{-5mm}")			
@@ -162,6 +162,58 @@ lab var any_deposit "\bf{Any Deposit}"
 // NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?
 }
 
+
+
+*TABLE: Remittance Estimates [SOMETHING IS WRONG WITH THIS TABLE]
+{
+use "$final/sofia-merge.dta", clear
+	g everremit = remittance_received==1 | remittance_sent==1
+	
+	g urban = STATUS=="URBAN"
+	g female = female_ind
+	g weight = wt_vil
+	g dataset = "SOFIA"
+	
+	keep everremit urban female weight dataset
+		
+		tempfile sofia 
+		save "`sofia'"
+		
+use "$final/fii2018.dta", clear
+ 
+ keep if province== 11 | province==22 | province==23 | province==32
+ g everremit = bi_e28a_d=="1" | bi_e28b_d=="1" | ojk10_3==1 | dl4_4==1 |  dl4_5==1
+ 
+ g dataset = "FII"
+	
+ 
+ 	keep everremit urban female weight dataset
+	
+	append using "`sofia'"
+	
+	collapse (mean) everremit (count) N=everremit [w=weight], by(urban female  dataset)
+	
+	reshape wide everremit N, i( urban female) j(dataset) string
+	
+		lab define female 0"Male" 1"Female"
+		lab values female female
+
+		
+		estpost tabstat everremitFII NFII everremitSOFIA NSOFIA if urban==0 , by(female)  statistics(mean) nototal
+					
+		esttab using "$fig/RemittanceCompare.tex",  cells("everremitFII(fmt(2)) NFII(fmt(0)) everremitSOFIA(fmt(2)) NSOFIA(fmt(0))") not noobs label nomtitle  eqlabels(`e(labels)') varlabels(`e(labels)') collabels(none) ///
+						replace nostar unstack fragment compress tex nonum  /// 
+						prehead("\begin{table}[H] \begin{adjustbox}{max width=1.3\textwidth} \begin{threeparttable} \caption{Estimates of Remittance Use} \label{remitcompate} {\begin{tabular}{l*{1}{lllll}} \hline \toprule &{FII}&{N}&{SOFIA}&{N} \\ \midrule \multicolumn{5}{l}{\textbf{Rural}} \\") 		
+		
+		
+		estpost tabstat everremitFII NFII everremitSOFIA NSOFIA if urban==1 , by(female)  statistics(mean) nototal
+					
+		esttab using "$fig/RemittanceCompare.tex",  cells("everremitFII(fmt(2)) NFII(fmt(0)) everremitSOFIA(fmt(2)) NSOFIA(fmt(0))")  not noobs label nomtitle  eqlabels(,none) varlabels(`e(labels)') collabels(none) ///
+						append nostar unstack fragment compress tex nonum  /// 
+						prehead("\multicolumn{5}{l}{\textbf{Urban}} \\")  ///
+				postfoot(" \bottomrule \addlinespace[1.5ex] \end{tabular}} \begin{tablenotes}[flushleft]  \small \item \emph{Notes:} Weighted estimates using the 2019 FII data and the 2016 SOFIA data. The SOFIA data are representative of adults 17 years and older living in East Java, West Nusa Tenggara, East Nusa Tenggara and South Sulawesi. FII data has been subset accordingly. Remittance use is captured by a series of questions in the FII including receipt of remittances in the past year, use of ATM cards for remittances, and the use of the post office for remittances. In SOFIA, respondents are asked if they sent or received money in the past year. \end{tablenotes} \end{threeparttable} \end{adjustbox} \end{table} \vspace*{-5mm}")		
+		
+	
 *FIGURE: ATM Transaction Types
 {
  use "$final/fii2018", clear
@@ -212,45 +264,13 @@ preserve
 		
 sort cat
 twoway (bar est marker if urban==0, barw(.45) yla(0(.2)1)) || (bar est marker if urban==1, barw(.45) yla(0(.2)1)) || ///
-	(rcap ul ll marker, mcol(black) lcol(black)), legend(order(1 2) label(1 "Rural") label(2 "Urban")  si(vsmall))  ///
+	(rcap ul ll marker, mcol(black) lcol(black)), legend(order(1 2) label(1 "Rural") label(2 "Urban")  si(small) region(lwidth(none)) span)  ///
 	xlab(1.25 "Withdrawl" 2.75 "Remit/Transfer" 4.25 "Deposit"  5.75 "Gov't Benefits" 7.25 "Purchases" 8.75 "Bill Pay" ,  labsize(small) )  xtit(" ") ytit("Share") ///
 	graphregion(color(white) fcolor(white))
 	
 	graph export "$fig/ATM_Transactions.png", replace
 								
 restore
-}
-
-*Table 3
-{
- use "$final/fii2018.dta", clear
-
- /*
- keep if year==2018
- drop *year14 *year15 *year16
- drop weight age
- rename *_year18 *
- */
-	
-forvalues i=1/14{
-	destring ifi15_`i'b, replace
-
-	gen timeto`i'  =  . 
-		replace timeto`i' = ifi15_`i'b if ifi15_`i'a==1
-		replace timeto`i' = (ifi15_`i'b*60) if ifi15_`i'a==2
-		replace timeto`i' = . if ifi15_`i'a==-2
-
-		*topcode
-		sum timeto`i', detail
-		replace timeto`i' = r(p99) if  timeto`i'>r(p99) &  !missing(timeto`i')
-}	
-
-lab var timeto1 "Bank Branch"
-lab var timeto2 "ATM"
-lab var timeto4 "Laku Pandai Agent"
-
-*sumtabtime timeto1 timeto2 timeto4, tablename("${wpfig}/timetable") title("Distance to Nearest Financial Service Access Points") label("timetable") notes("Distances topcoded at the 99th percentile")
-// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?	
 }
 
 
@@ -324,7 +344,7 @@ graph combine population village
 
  		 gr export "$fig/heatmappie.png", replace
 		 
-*Janky way to get legend
+*Legend on its own
 	local new = _N + 1
     set obs `new'
 	replace financialserv = 4 if financialserv==.
@@ -402,16 +422,16 @@ gen index = _n
 	replace index = index + 2 if index==5 | index==6
 	replace index = index + 1 if index==3 | index==4
 
-	twoway 	(bar est index if female==0 & catvar<7, yscale(range(0) axis(1)) ytitle("Percent", axis(1)))  /// 
+	twoway 	(bar est index if female==0 & catvar<7, yscale(range(0) axis(1)) ytitle("Share", size(small) axis(1)))  /// 
 			(bar est index if female==1 & catvar<7) ///
-			(bar est index if female==0 & catvar>6, yaxis(2) yscale(range(0) axis(2)) ytitle("Number of Tasks", orientation(rvertical) axis(2)) fcolor("227 89 37") )  /// 
+			(bar est index if female==0 & catvar>6, yaxis(2) yscale(range(0) axis(2)) ytitle("Number of Tasks", size(small) orientation(rvertical) axis(2)) fcolor("227 89 37") )  /// 
 			(bar est index if female==1 & catvar>6, yaxis(2) fcolor("45 171 159")) ///
 			(rcap ul ll index if catvar<7, lcolor(black)) ///
 			(rcap ul ll index if catvar>6, lcolor(black) yaxis(2)) , ///
 			xtitle(" ") ///
-			legend(row(1) order(1 "Male" 2 "Female"))  ///
+			legend(row(1) size(small) region(lwidth(none)) order(1 "Male" 2 "Female"))  ///
 			xlabel( 1.5 "Calls" 4.5 "Navigate Menu" 7.5 "Text" 10.5 "Search Internet" 13.5 "Fin. Transaction" 16.5 "Download App" 20.5"Basic Tasks" 23.5"Advanced Tasks" 26.5"Total Tasks", angle(45)) ///
-			xline(18.5, lpattern(dash) lcolor(gs13)) 
+			xline(18.5, lpattern(dash) lcolor(gs13))  
 			
  		 gr export "$fig/phonecapability.png", replace
 
@@ -436,8 +456,6 @@ gen index = _n
 	gen compsome = inlist(mt18a_4,3,4) | inlist(mt18a_6, 8,3,4)
 	
 	
-	*g province = aa1_year18
-
  mat res=J(150,5,.)
  local j = 1
  local row = 1
@@ -472,7 +490,7 @@ twoway 	(bar est index2 if dl_ability == 1) || ///
 			graphregion(color(white) fcolor(white)) ///
 			yscale(range(0 1)) ylab(#5, labsize(small)) ///
 			legend(on order(1 2) label(1 "Complete Ability") label(2 "Complete or Some Ability") ///
-			size(small) rows(1)) ///
+			size(small) region(lwidth(none)) rows(1)) ///
 			xlab(1.5 "No Formal Education" 4.5 "Primary School" 7.5 "Junior High School" ///
 			10.5 "High School" 13.5 "University", angle(hor) labsize(vsmall) notick) ///
 			xtit(" ", size(small))
@@ -498,9 +516,9 @@ use "$final/sofia-merge.dta", clear
 	label define female 0"Males" 1"Females"
 	lab values female_ind female
 	
-	graph bar cashonly_rec dig_rec , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") ) 	title("Receipt of Remittances", size(medsmall)) name("a", replace)
+	graph bar cashonly_rec dig_rec , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") size(small) region(lwidth(none))) 	title("Receipt of Remittances", size(medsmall)) name("a", replace) intensity(80)
 
-	graph bar cashonly_send dig_send , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") ) 	title("Sending of Remittances", size(medsmall)) name("b", replace)	
+	graph bar cashonly_send dig_send , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") size(small) region(lwidth(none))) 	title("Sending of Remittances", size(medsmall)) name("b", replace)	 intensity(80)
 	
 	grc1leg a b, ycommon
 			
@@ -592,7 +610,7 @@ use "$final/sofia-merge.dta", clear
 			xtit("") ///
 			xlab(1 "All Households" 2 "PKH Households" 3 "BPNT Households" 4 "PIP Households", angle(hor) labsize(small) notick) ///	
 			legend( on order(1 2 3) label(1 "Only the household head or/and spouse") ///
-			label(2 "Both heads and other HH members")  label(3 "Only other HH members") size(vsmall) rows(2)) 
+			label(2 "Both heads and other HH members")  label(3 "Only other HH members") rows(2) size(small) region(lwidth(none)))  
 			
 			
 	gr export "$fig/account_shroud_stack.png", replace
@@ -600,34 +618,13 @@ use "$final/sofia-merge.dta", clear
 
 
 ****RANDOM FOREST*****
-/* CLOSED AS OUTPUT DATASETS NOT YET INCLUDED
 *Table: Accuracy
 {
-use "$final/fii-routput-accuracy-male.dta", clear
-
-gen Sample = 3
-order Sample
-
-	tempfile male 
-	save "`male'"
+use "$final/fii-routput-accuracy.dta", clear
 	
-use "$final/fii-routput-accuracy-fem.dta", clear
-
-gen Sample = 2
-order Sample
-
-	tempfile female 
-	save "`female'"	
-	
-use "$final/output/fii-routput-accuracy-full.dta", clear
-
-gen Sample = 1
-order Sample
-
-
-	append using "`male'"
-	append using "`female'"
-	
+	gen Sample = 1 if sample=="Full"
+	replace Sample = 2 if sample=="Female"
+	replace Sample = 3 if sample=="Male"
 	lab define Sample 1"Full Sample" 2"Females" 3"Males"
 	lab values Sample Sample
 	
@@ -656,14 +653,14 @@ estpost tabstat NoInfo Overall Pvalue Sensitivity Specificity, by(Sample)  listw
 
 *Table: Var Importance
 {
-				 
-use "$final/fii-routput-varimp-full.dta", clear	
+use "$final/fii-routput-varimp.dta", clear	
 	gsort -Importance_rf
-	gen Rank = _n
+	sort sample, stable
+	by sample: gen Rank = _n
 		gen varlab = "Receives Government Assistance" if Variables=="money_govt_asstYes"
 		replace varlab = "Ever had BPJS Health" if Variables=="bpjs_healthYes"
-		replace varlab = "Owns any mobile phone" if Variables=="own_mobilephoneYes"
-		replace varlab = "Has Drivers’ License" if Variables=="has_DrivLicYes"
+		replace varlab = "Owns any Mobile Phone" if Variables=="own_mobilephoneYes"
+		replace varlab = "Has Drivers License" if Variables=="has_DrivLicYes"
 		replace varlab = "Ever had BPJS Labor" if Variables=="bpjs_laborYes"
 		replace varlab = "Owns Smartphone" if Variables=="own_smartphoneYes"
 		replace varlab = "Has Tax Card" if Variables=="has_TaxCardYes"
@@ -671,97 +668,82 @@ use "$final/fii-routput-varimp-full.dta", clear
 		replace varlab = "Has done 2 basic phone tasks in past week" if Variables=="phonetasks_bas_week2"
 		replace varlab = "Has done 2 basic phone tasks in past month" if Variables=="phonetasks_bas_month2"
 		replace varlab = "Female" if Variables=="femaleYes"
-
-		assert !missing(varlab) if Rank<=10
-
-		
-		keep if Rank<=10 | varlab=="Female"
-			rename Importance_rf imp_o
-			rename varlab varlab_o
-			drop Variables
-		
-			tempfile overall
-			save "`overall'"
-		
-use "$final/fii-routput-varimp-fem.dta", clear	
-	gsort -Importance_rf
-	gen Rank = _n
-		gen varlab = "Receives Government Assistance" if Variables=="money_govt_asstYes"
-		replace varlab = "Ever had BPJS Health" if Variables=="bpjs_healthYes"
-		replace varlab = "Owns any mobile phone" if Variables=="own_mobilephoneYes"
-		replace varlab = "Has Drivers’ License" if Variables=="has_DrivLicYes"
-		replace varlab = "Ever had BPJS Labor" if Variables=="bpjs_laborYes"
-		replace varlab = "Owns Smartphone" if Variables=="own_smartphoneYes"
-		replace varlab = "Has Tax Card" if Variables=="has_TaxCardYes"
+		replace varlab = "Has done all three advanced phone tasks" if Variables=="phonetasks_adv_ever3"
 		replace varlab = "Receives scholarship" if Variables=="money_scholarshipYes"
+		replace varlab = "Has done all five phone tasks" if Variables=="phonetasks_ever5"
 		replace varlab = "Housewife" if Variables=="jobtypeHousewife"
-		replace varlab = "Has done all five phone tasks" if Variables=="phonetasks_ever5"
-		replace varlab = "Has done all three advanced phone tasks" if Variables=="phonetasks_adv_ever3"
-		
-		assert !missing(varlab) if Rank<=10
-		
-		keep if Rank<=10
-			rename Importance_rf imp_f
-			rename varlab varlab_f
-			drop Variables
-
-			tempfile female 
-			save "`female'"
-
-use "$final/fii-routput-varimp-male.dta", clear	
-	gsort -Importance_rf
-	gen Rank = _n
-		gen varlab = "Ever had BPJS Health" if Variables=="bpjs_healthYes"
-		replace varlab = "Owns any mobile phone" if Variables=="own_mobilephoneYes"
-		replace varlab = "Has Drivers’ License" if Variables=="has_DrivLicYes"
-		replace varlab = "Ever had BPJS Labor" if Variables=="bpjs_laborYes"
-		replace varlab = "Owns Smartphone" if Variables=="own_smartphoneYes"
-		replace varlab = "Has Tax Card" if Variables=="has_TaxCardYes"
-		replace varlab = "Highest Education: HS/Vocational" if Variables=="highestedu_respondentHS Vocational"
 		replace varlab = "Has complete ability to make/receive a call on a mobile" if Variables=="ability_callcomplete"
-		replace varlab = "Has done all five phone tasks" if Variables=="phonetasks_ever5"
-		replace varlab = "Has done all three advanced phone tasks" if Variables=="phonetasks_adv_ever3"
-		
-		assert !missing(varlab) if Rank<=10
-		
-		keep if Rank<=10
+		replace varlab = "Trusts Financial Providers to Keep Personal Information Private" if Variable=="trust_in_systemstrong agree"
 
-			rename Importance_rf imp_m
-			rename varlab varlab_m
-			drop Variables
-			
-		merge 1:1 Rank using "`female'"
-				 assert _merge==3
-				 drop _merge
-				 
-		merge 1:1 Rank using "`overall'"
+		assert !missing(varlab) if Rank<=10
+
 		
-		order Rank imp_o varlab_o imp_m varlab_m imp_f varlab_f
-		drop _merge
-				 
+		keep if Rank<=10 | (varlab=="Female" & sample=="Full")
 				 
 			
 	*
 	lab var Rank "Rank"
-	lab var imp_o "Importance"
-	lab var varlab_o "Feature"
-	lab var imp_m "Importance"
-	lab var varlab_m "Feature"
-	lab var imp_f "Importance"
-	lab var varlab_f "Feature"
+	lab var Importance_rf "Importance"
+	lab var varlab "Feature"
 	
+	keep Rank Importance_rf varlab sample
 	
-        texsave Rank imp_o varlab_o imp_m varlab_m imp_f varlab_f  using  "${wpfig}/Varimptable.tex", marker("rfvarimp") replace varlabels headerlines("& \multicolumn{2}{c}{\textbf{Overall}} & \multicolumn{2}{c}{\textbf{Males}} & \multicolumn{2}{c}{\textbf{Females}}" "\cmidrule{2-3} \cmidrule{4-5} \cmidrule{6-7}" ) hlines(10) frag
+	preserve 
+	
+		keep if sample=="Full"
+		estimates clear
+		labmask Rank, values(varlab)	
+		g var=Rank
+		lab values var Rank
 		
+			estpost tabstat Rank Importance_rf , by(var)  statistics(mean) nototal
+					
+			esttab using "$fig/Varimptable.tex",  cells("Rank Importance_rf(fmt(2))") not noobs label nomtitle  eqlabels(`e(labels)') varlabels(`e(labels)') collabels(none) ///
+						replace nostar unstack fragment compress tex nonum  /// 
+								prehead("\begin{table}[H] \begin{adjustbox}{max width=1.3\textwidth} \begin{threeparttable} \caption{Top 10 Most Important Variables in Random Forest Model} \label{varimpt} {\begin{tabular}{l*{1}{lll}} \hline \toprule {Feature}&{Rank}&{Importance} \\ \midrule \multicolumn{3}{c}{\textbf{A. Overall}} \\") 
+	restore						
+				
+				
+	preserve 
+	
+		keep if sample=="Male"
+		estimates clear
+		labmask Rank, values(varlab)	
+		g var=Rank
+		lab values var Rank
 		
+			estpost tabstat Rank Importance_rf , by(var)  statistics(mean) nototal
+					
+			esttab using "$fig/Varimptable.tex",  cells("Rank Importance_rf(fmt(2))") not noobs label nomtitle  eqlabels(,none) varlabels(`e(labels)') collabels(none) ///
+						append nostar unstack fragment compress tex nonum  /// 
+								prehead("\midrule \multicolumn{3}{c}{\textbf{B. Males}} \\  ") 
+	restore
 	
+	preserve 
 	
+		keep if sample=="Female"
+		estimates clear
+		labmask Rank, values(varlab)	
+		g var=Rank
+		lab values var Rank
+		
+			estpost tabstat Rank Importance_rf , by(var)  statistics(mean) nototal
+					
+			esttab using "$fig/Varimptable.tex",  cells("Rank Importance_rf(fmt(2))") not noobs label nomtitle  eqlabels(,none) varlabels(`e(labels)') collabels(none) ///
+						append nostar unstack fragment compress tex nonum  /// 
+						prehead("\midrule \multicolumn{3}{c}{\textbf{C. Females}} \\  ")  ///
+						postfoot(" \bottomrule \addlinespace[1.5ex] \end{tabular}} \begin{tablenotes}[flushleft]  \small \item \emph{Notes:} Unweighted data from 2019 FII. The table displays the ten most important variables identified by the random forest modeling, as well as the ranking for the female variable in the overall model. Ranking is based on the variables' value in decreasing Gini inpurity. For a more in depth explanation of random forest and its components, refer to \cite{rfart} \end{tablenotes} \end{threeparttable} \end{adjustbox} \end{table} \vspace*{-5mm}")
+	restore		
+			
+			}
+
 }
 *Figure: Var Importance
 {
-
-	foreach y in fem male	{
-	use "$final/fii-routput-varimp-`y'.dta", clear	
+	foreach Sample in Male Female{
+	use "$final/fii-routput-varimp.dta", clear	
+		
+			keep if sample=="`Sample'"
 		gsort -Importance_rf
 		gen Rank = _n	
 		keep if Rank<101
@@ -770,15 +752,20 @@ use "$final/fii-routput-varimp-male.dta", clear
 
 	replace Variables = subinstr(Variables," ", "", .)
 
-	local dige own_mobilephoneYes own_smartphoneYes phonetasks_ever5 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_week2 ability_internetcomplete phoneusage_basic_n12 phonetasks_bas_today2 phonetasks_bas_month2 ability_navmenucomplete ability_callcomplete phonetasks_bas_today1 ability_textcomplete phoneusage_adv_n12 ability_dwldappcomplete phonetasks_today1 ability_internetnone ability_fintranscomplete ability_dwldappnone 
+	local dige own_mobilephoneYes own_smartphoneYes phonetasks_ever5 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_week2 ability_internetcomplete phoneusage_basic_n12 phonetasks_bas_today2 phonetasks_bas_month2 ability_navmenucomplete ability_callcomplete phonetasks_bas_today1 ability_textcomplete phoneusage_adv_n12 ability_dwldappcomplete phonetasks_today1 ability_internetnone ability_fintranscomplete ability_dwldappnone phonetasks_ever2 phonetasks_adv_week2 ability_navmenunone phoneusage_adv_n3 phonetasks_adv_today2 phonetasks_month5 phonetasks_adv_month3 ability_textnone phonetasks_week5 phonetasks_today2 ability_navmenusome
 
 	local idown has_TaxCardYes has_DrivLicYes
 	local gov money_govt_asstYes bpjs_healthYes  bpjs_laborYes has_KTPYes
-	local ses money_scholarshipYes poverty_binYes fridgeYes used_sharedYes money_dom_remitYes read_bahasagood can_readsomehelp scooterYes read_bahasasomewhatbadly
+	local ses money_scholarshipYes poverty_binYes fridgeYes used_sharedYes money_dom_remitYes read_bahasagood can_readsomehelp scooterYes read_bahasasomewhatbadly write_bahasagood cookfuelfas
 	local eco jobtypeHousewife workertypeHousewife/husband employment_maleWageorsalaryemployee jobsectorservice employment_maleSelf-employed income_pctalittle workertypeWorkingfull-timewithreg.salary income_pctabouthalf workertypeSelf-employed jobtypeSelfEmply workertypeWorkingoccassionally,irregularpay/seasonal income_pctalmostall workertypeFull-timestudent jobtypeStudent jobsectorlaborer jobtypeIrreg money_agYes
 
-	local demo trust_in_systemstrongagree highestedu_femalePrimary highestedu_respondentPrimary highestedu_respondentJr.High provinceProvince9 provinceProvince11 highestedu_respondentHSVocational hh_num_females1 voice_disagreementvlikely hh_num_females2 multi_distmorethan5km urbanUrban invovle_beybasicsvinvolved any_teenage_girlsYes finaldec_ownmoneystrongagree atm_distbtwn1and5km hh_num_males1 pos_distbtwn1and5km hh_num_males2 males_9t121 finaldec_hhincstrongagree resp_age_binage40to45  invovle_basicsvinvolved bank_distbtwn1and5km influence_spendingalmostall insur_distmorethan5km rel_hh_headspouse hh_head_femYes atm_distbtwn.5and1km hh_size4 pos_distmorethan5km hh_members4 invovle_hhincvinvolved highestedu_femaleJrHigh hh_head_age_binage35to40 hh_size3 provinceProvince10 pawnshop_distbtwn1and5km hh_members3 trust_in_systemsomeagree hh_head_age_binage45to50 fems_9t121 multi_distbtwn1and5km laku_distbtwn1and5km hh_size5 pawnshop_distmorethan5km hh_head_age_binage40to45 finaldec_ownmoneysomeagree finaldec_hhincsomeagree provinceProvince33 males_u41 coop_distbtwn1and5km influence_spendingmost money_ownYes males_5t81 highestedu_femaleVocationalHSlevel marriedYes any_teenage_boysYes invovle_hhincvuninvolved influence_spendingnone invovle_hhincsomeuninvolved sh_micro_distbtwn1and5km money_bus_less10Yes laku_distbtwn.5and1km mta_distbtwn1and5km voice_disagreementsomelikely bank_distbtwn.5and1km phoneusage_adv_n3 phonetasks_adv_today2 phonetasks_month5 phonetasks_adv_month3 ability_textnone phonetasks_week5 phonetasks_today2 ability_navmenusome
+	
+	local demo trust_in_systemstrongagree highestedu_femalePrimary highestedu_respondentPrimary highestedu_respondentJr.High provinceProvince9 provinceProvince11 highestedu_respondentHSVocational hh_num_females1 voice_disagreementvlikely hh_num_females2 multi_distmorethan5km urbanUrban invovle_beybasicsvinvolved any_teenage_girlsYes finaldec_ownmoneystrongagree atm_distbtwn1and5km hh_num_males1 pos_distbtwn1and5km hh_num_males2 males_9t121 finaldec_hhincstrongagree resp_age_binage40to45  invovle_basicsvinvolved bank_distbtwn1and5km influence_spendingalmostall insur_distmorethan5km rel_hh_headspouse hh_head_femYes atm_distbtwn.5and1km resp_age_binage35to40 atm_distlessthan.5km hh_size4 pos_distmorethan5km hh_members4 invovle_hhincvinvolved highestedu_femaleJrHigh hh_head_age_binage35to40 hh_size3 provinceProvince10 know_mobilemoneyYes pawnshop_distbtwn1and5km hh_members3 bank_distmorethan5km use_mobilemoneyYes trust_in_systemsomeagree hh_head_age_binage45to50 fems_9t121 multi_distbtwn1and5km laku_distbtwn1and5km hh_size5 pawnshop_distmorethan5km hh_head_age_binage40to45 finaldec_ownmoneysomeagree finaldec_hhincsomeagree provinceProvince33 males_u41 coop_distbtwn1and5km influence_spendingmost money_ownYes males_5t81 highestedu_femaleVocationalHSlevel marriedYes any_teenage_boysYes invovle_hhincvuninvolved influence_spendingnone invovle_hhincsomeuninvolved sh_micro_distbtwn1and5km money_bus_less10Yes laku_distbtwn.5and1km mta_distbtwn1and5km voice_disagreementsomelikely bank_distbtwn.5and1km  invovle_beybasicsneither
 
+
+
+
+	
 	foreach x in `dige'{
 			replace varcat = 1 if Variables=="`x'"
 		}
@@ -804,16 +791,16 @@ use "$final/fii-routput-varimp-male.dta", clear
 		}	
 		
 
-	if "`y'"=="fem"{
+	if "`Sample'"=="Female"{
 		local tit "Females"
 	}
-	if "`y'"=="male" {
+	if "`Sample'"=="Male" {
 		local tit "Males"
 	}
 	twoway (bar  Importance Rank if varcat==1, color(gray) lcolor(black)) (bar Importance Rank if varcat==2,  color(red) lcolor(black)) ///
 	(bar  Importance Rank if varcat==3,  color(blue) lcolor(black)) (bar Importance Rank if varcat==4,  color(black) lcolor(black)) ///
 	(bar  Importance Rank if varcat==5,  color(green) lcolor(black)) (bar Importance Rank if varcat==6,  color(yellow) lcolor(black)), ///
-	legend(order(1 4 2 3 5 6) label(1 "Digital Engagement") label(2 "ID Ownership") label(3 "Gov't Benefits") ///
+	legend(region(lwidth(none)) order(1 4 2 3 5 6) label(1 "Digital Engagement") label(2 "ID Ownership") label(3 "Gov't Benefits") ///
 	label(4 "SES") label(5 "Economic") label(6 "Demographics") size(small) rows(2)) title({bf:`tit'}, size(medium)) ///
 	name("`tit'", replace) ytitle("Importance") 
 
@@ -826,7 +813,7 @@ use "$final/fii-routput-varimp-male.dta", clear
 
 	
 }
-*/
+
 
 *BOX 2: ONLINE SURVEY BY GENDER
 {
@@ -887,6 +874,11 @@ replace marker = 4 + (counter - 1) * 7 if dfs == 3
 replace marker = 5 + (counter - 1) * 7 if dfs == 6
 replace marker = 6 + (counter - 1) * 7 if dfs == 5
 
+
+	**add a little space between non-user and users for ease of readability
+	replace marker = marker +.1 if marker>4
+	replace marker = marker +.1 if marker>12
+	
 twoway (bar est marker if dfs == 1) || ///
 		(bar est marker if dfs == 2) || ///
 		(bar est marker if dfs == 4) || ///
@@ -898,12 +890,13 @@ twoway (bar est marker if dfs == 1) || ///
 		graphregion(color(white) fcolor(white)) ///
 		yscale(range(0 .4)) ylab(#5, labsize(small)) ///
 		xtit("") ///
-		legend(pos(6) row(3) on order(1 2 3 4 5 6) label(1 "First time user") ///
-		label(2 "Used, now more often") label(3 "Used, no change") ///
-		label(4 "Used, now less often") label(5 "Stopped use") ///
-		label(6 "Never used") ///
-		size(medsmall) cols(1)) ///
-		xlabel(3.5 "Female [n=`f']" 10.5 "Male [n=`m']", angle(hor) labsize(small) notick)
+		legend(region(lwidth(none))  row(2) on order(1 2 3 4 5 6) label(1 "First Time Usee") ///
+		label(2 "Use More Often") label(3 "Use Same Amount") ///
+		label(4 "Use Less Often") label(5 "Stopped Use") ///
+		label(6 "Never Use") ///
+		size(small)) ///
+		xlabel(3.5 "Females" 10.75 "Males", angle(hor) labsize(small) notick)
+			
 			
 	gr export "$fig/onlinesurvey_gender.png", replace
 
@@ -977,13 +970,13 @@ replace marker = 3 if female == 0
 twoway	(bar est marker if buy == 1) || ///
 		(rbar ul ll marker if buy == 2) || ///
 		(rbar ul ll marker if buy == 3), ///
-		ytit("Weighted percentage", size(small)) ///
+		ytit("Share", size(small)) ///
 		graphregion(color(white) fcolor(white)) ///
 		yscale(range(0 1)) ylab(#5, labsize(small)) ///
 		xscale(range(0 4)) xtit("") ///
-		legend(on order(1 2 3) label(1 "Never online") ///
-		label(2 "Some online") label(3 "Mostly online") size(vsmall) row(1)) ///
-		xlabel(1 "Female (n=`f')" 3 "Male (n=`m')", angle(hor) labsize(small) notick)
+		legend(size(small) region(lwidth(none)) on order(1 2 3) label(1 "Never Online") ///
+		label(2 "Some Online") label(3 "Mostly Online") row(1)) ///
+		xlabel(1 "Females" 3 "Males", angle(hor) labsize(small) notick)
 			
 	gr export "$fig/onlinesurvey_ecomm.png", replace
 }
@@ -1130,7 +1123,7 @@ twoway 	(bar est index if grpvar == 2 & outcome==2,  bcolor("242 196 19")   barw
 graph combine education urban age, ycommon title("E-Money Usage", size(medsmall))	col(1)	name("g2", replace)	
 	
 			
-	graph combine g1 g2, col(2) xsize(4)
+	graph combine g1 g2, col(2) xsize(*.75)
 			
 	gr export "$fig/sesgradient.png", replace
 	
