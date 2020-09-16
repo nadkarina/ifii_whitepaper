@@ -45,12 +45,12 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 	*3. * Household decision making
 			foreach var of varlist gn1 gn2 gn3 gn4 gn5 gn6 gn7 {
 			replace `var' = .r if `var' == -3
-			replace `var' = .d if `var' == -3
-			}
+			replace `var' = .d if `var' == -2
+						}
 			
 		g invovle_hhinc = gn1
 			lab var invovle_hhinc "Deciding how to spend your household’s income?"
-				lab define gn 1"Very uninvolved" 2"Somewhat uninvolved" 3"Neither uninvolved, nor involved" 4"Somewhat involved" 5"Very involved" -3"Refused" -2"Don't Know"
+				lab define gn 1"Very uninvolved" 2"Somewhat uninvolved" 3"Neither uninvolved, nor involved" 4"Somewhat involved" 5"Very involved" 
 				lab values invovle_hhinc gn
 		g invovle_basics = gn2 
 			lab var invovle_basics "Deciding how your household’s income is spent on basic needs like food and clothing?"
@@ -60,15 +60,15 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 			lab values invovle_beybasics gn
 		g influence_spending = gn4 
 			lab var influence_spending "If you were to speak your mind on a typical decision on how to spend your household’s income, how much influence would you have on the final decision?"
-			lab define g4 1"None" 2"A little" 3"A fair amount" 4"Most" 5"Almost all" -3"Refused" -2"Don't Know"
+			lab define g4 1"None" 2"A little" 3"A fair amount" 4"Most" 5"Almost all" 
 			lab values influence_spending gn4
 		g voice_disagreement = gn5
 			lab var voice_disagreement "If you happened to disagree with a typical decision about how your household’s income is spent, how likely would you be to voice disagreement?"
-			lab define g5 1"Very unlikely" 2"Somewhat unlikely" 3"Neither unlikely, nor likely" 4"Somewhat likely" 5"Very likely" -3"Refused" -2"Don't Know"
+			lab define g5 1"Very unlikely" 2"Somewhat unlikely" 3"Neither unlikely, nor likely" 4"Somewhat likely" 5"Very likely" 
 			lab values voice_disagreement g5
 		g finaldec_hhinc = gn6
 			lab var finaldec_hhinc "Hw much you agree or disagree with the following statements: You make the final decision on how household income is spent."
-			lab define agree 1"Strongly disagree" 2"Somewhat disagree" 3"Neither disagree, nor agree" 4"Somewhat agree" 5"Strongly agree"  -3"Refused" -2"Don't Know"
+			lab define agree 1"Strongly disagree" 2"Somewhat disagree" 3"Neither disagree, nor agree" 4"Somewhat agree" 5"Strongly agree" 
 			lab values finaldec_hhinc agree
 		g finaldec_ownmoney = gn7
 			lab var finaldec_ownmoney "How much you agree or disagree with the following statements: You make the final decision on how your money is spent or saved."
@@ -76,6 +76,12 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 		g trust_in_system = gn8  
 			lab var trust_in_system "How much you agree or disagree with the following statements: You trust financial service providers to keep your personal information private unless you allow it to be shared."
 			lab values trust_in_system agree
+			
+	*Create version of variables if answer 4 or 5 for figure
+	foreach var in invovle_hhinc influence_spending voice_disagreement finaldec_ownmoney{
+		gen any_`var' = inlist(`var',4,5)
+		replace any_`var' = . if `var'==.d | `var'==.r
+				}	
 	
 *INFORMATION ABOUT THE RESPONDENT VARIABLES
 	
@@ -406,7 +412,7 @@ gen informal = loanmulti == 1 | loanpawn == 1 | loanmicro == 1 | savmicro == 1 |
 
 
 
-		save "${final}/fii2018", replace					
+save "${final}/fii2018", replace					
 
 
 ** PREPARE DATA FOR RANDOM FOREST
@@ -655,7 +661,7 @@ foreach time in 30days 90days 6mon 1yr{
 	replace dl1_raw= 97 if dl1_raw==-2
 	replace highestedu_female = 6 if highestedu_female==-99
 	
-*Clean up respondnet education variable		
+*Clean up respondent education variable		
 	g highestedu_respondent_sub=highestedu_respondent
 		replace highestedu_respondent_sub = 1 if highestedu_respondent==9
 		replace highestedu_respondent_sub = 5 if highestedu_respondent==6  | highestedu_respondent==7 | highestedu_respondent==8

@@ -6,100 +6,184 @@
 * LAST MODIFIED: 25 August 2020 by Nadia Setiabudi
 * ******************************************************************************
 
-
-
-************************************************************
-* Involvement in household's financial decision making
-************************************************************
+************************************************
+* FIGURE 1:	Village-Level Access to 	   	   *
+* Financial Services	   					   *
+************************************************
 {
+*PODES Data Matched
+	use "$final/matchedfin_shp_PODES.dta", clear
+		gen bank = r1208ak2 + r1208bk2 +r1208ck2
+		gen bank2 = bank > 0
+			replace bank2 = 0 if bank == . 
+		gen atm = r1209ck2 == 1
+		gen agent = r1209gk2 == 1
 
-use "$final/fii2018", clear
+		gen financialserv = bank2 == 1
+			replace financialserv = 2 if bank2 == 0 & atm == 1
+			replace financialserv = 3 if bank2 == 0 & atm == 0 & agent == 1
+			replace financialserv = 4 if _m != 3
 
-keep if age >17
+		drop if _ID == . //dropping the unmatched
+		destring provno, replace
 
-foreach var in invovle_hhinc influence_spending voice_disagreement finaldec_ownmoney{
-	gen `var'_sub = inlist(`var',4,5)
-	replace `var'_sub = . if `var'==-2
-			}
+*Create Map
+
+	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
+	
+	spmap financialserv using "$final/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
+	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
+	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
+	legend(label(2 "No Bank")) legend(label(3 "Bank") label(4 "No Bank, ATM Only") ///
+	label(5 "No Bank or ATM, Only Agent") label(6 "No Data") ) ///
+	legorder(lohi) legend(ring(1) position(6) ///
+		rows(1))  
+	
+	gr export "$fig/heatmap_financialserv.png", replace
+}
 
 
-mat res=J(100,5,.)
- local row = 1
- local k=1
- 
-	 foreach group in invovle_hhinc_sub influence_spending_sub voice_disagreement_sub finaldec_ownmoney_sub {
-			reg `group' female if married == 1 [w=weight]
-				//female head or spouse
-					lincom _b[_cons]+_b[female]
-						mat res[`row',1]= r(estimate)
-						mat res[`row',2]= r(estimate)-1.96*r(se)
-						mat res[`row',3]= r(estimate)+1.96*r(se)
-						mat res[`row',4]= `k'
-						mat res[`row',5]= 1
-					local ++row
+*FIGURE: Indonesia financial service PIE CHART
+{
+use "$final/podes-popbank.dta", clear
+
+collapse (sum) population (count)  id, by(financialserv)
+
+	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM, but Agent" 4"No Data", replace
+	label values financialserv FIN
+
+colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
+
+* Indonesia population pie chart
+graph pie population, over(financialserv) legend(off) ///
+	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+	title("Population", size(vhuge)) ///
+	plotregion(color(white) fcolor(white)) ///
+	name("population", replace) plotregion(margin(zero))
+
+* Indonesia location pie chart
+graph pie id, over(financialserv) legend(off) ///
+	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+	title("Villages", size(vhuge)) ///
+	plotregion(color(white) fcolor(white)) ///
+	name("village", replace)  plotregion(margin(zero))
+
+graph combine population village 
+
+ 		 gr export "$fig/heatmappie.png", replace
+		 
+*Legend on its own
+	local new = _N + 1
+    set obs `new'
+	replace financialserv = 4 if financialserv==.
+		replace population =1 if financialserv==4
+	
+	
+	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
+	
+	
+	gr export "$fig/heatmap_legend1.png", replace
+
+	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
+	
+	
+	gr export "$fig/heatmap_legend2.png", replace
+}
+
+************************************************
+* FIGURE 2:	Influence on and Involvement	   *
+* in Household Financial Decision-making	   *
+************************************************
+{
+*Use 2018 FII Data
+	use "$final/fii2018", clear
+
+*Subset to 18 or Older
+	keep if age >17
+
+*Set-up Matrix for Estimates	
+	mat res=J(100,5,.)
+	 local row = 1
+	 local k=1
+	 
+*Run Estimates	 
+	foreach group in any_invovle_hhinc any_influence_spending any_voice_disagreement any_finaldec_ownmoney {
+		reg `group' female if married == 1 [w=weight]
+			//Married - Females
+				lincom _b[_cons]+_b[female]
+					mat res[`row',1]= r(estimate)
+					mat res[`row',2]= r(estimate)-1.96*r(se)
+					mat res[`row',3]= r(estimate)+1.96*r(se)
+					mat res[`row',4]= `k'
+					mat res[`row',5]= 1
+				local ++row
 					
-				//male head or spouse
-						mat res[`row',1]= _b[_cons]
-						mat res[`row',2]= _b[_cons]-1.96*_se[_cons]
-						mat res[`row',3]= _b[_cons]+1.96*_se[_cons]
-						mat res[`row',4]= `k'
-						mat res[`row',5]= 2
-					local ++row
+			//Married - Males
+					mat res[`row',1]= _b[_cons]
+					mat res[`row',2]= _b[_cons]-1.96*_se[_cons]
+					mat res[`row',3]= _b[_cons]+1.96*_se[_cons]
+					mat res[`row',4]= `k'
+					mat res[`row',5]= 2
+				local ++row
 					
-			reg `group' female if married == 0 [w=weight]
-				//female head or spouse
-					lincom _b[_cons]+_b[female]
-						mat res[`row',1]= r(estimate)
-						mat res[`row',2]= r(estimate)-1.96*r(se)
-						mat res[`row',3]= r(estimate)+1.96*r(se)
-						mat res[`row',4]= `k'
-						mat res[`row',5]= 3
-					local ++row
+		reg `group' female if married == 0 [w=weight]
+			//Unmarried - Females
+				lincom _b[_cons]+_b[female]
+					mat res[`row',1]= r(estimate)
+					mat res[`row',2]= r(estimate)-1.96*r(se)
+					mat res[`row',3]= r(estimate)+1.96*r(se)
+					mat res[`row',4]= `k'
+					mat res[`row',5]= 3
+				local ++row
 					
-				//male head or spouse
-						mat res[`row',1]= _b[_cons]
-						mat res[`row',2]= _b[_cons]-1.96*_se[_cons]
-						mat res[`row',3]= _b[_cons]+1.96*_se[_cons]
-						mat res[`row',4]= `k'
-						mat res[`row',5]= 4
-					local ++row					
+			//Unmarried - Males
+				mat res[`row',1]= _b[_cons]
+					mat res[`row',2]= _b[_cons]-1.96*_se[_cons]
+					mat res[`row',3]= _b[_cons]+1.96*_se[_cons]
+					mat res[`row',4]= `k'
+					mat res[`row',5]= 4
+				local ++row					
 		
-			local ++k	
-				}
-	
-drop _all
-mat colnames res= est ul ll indic cat
-	svmat res, names(col)
-	drop if est==.
+				local ++k	
+						}
+*Put Estimates in Matrix	
+	drop _all
+	mat colnames res= est ul ll indic cat
+		svmat res, names(col)
+		drop if est==.
 
-	gen marker = _n
-	
-	replace marker = marker - 1 if cat==3
-	replace marker = marker + 1 if cat==2
-	sort marker
-	gen gender = cat==1 | cat==3
-	
-	levelsof(indic), local(lvls)
-	foreach l in `lvls'{
-		local l2 = `l'-1
-		if `l'>1{
-		replace marker = marker + `l2' if indic==`l'
-		}
-		}
-	
-twoway 	(bar est marker if cat == 1, bcolor("227 89 37"))  ///
-		(bar est marker if cat == 3, bcolor("227 89 37") fintensity(inten60))   ///
-		(bar est marker if cat == 2, bcolor("45 171 159"))   ///
-		(bar est marker if cat == 4, bcolor("45 171 159") fintensity(inten60))  , ///
-		ytit("Share", size(small)) ///
-		graphregion(color(white) fcolor(white)) ///
-		yscale(range(0 1)) ylab(#6, labsize(small)) ///
-		legend(on order(1 2 3 4) label(1 "Married Females") label(2 "Unmarried Females") label(3 "Married Males") label(4 "Unmarried Males") symysize(*.6) symxsize(*.6) ///
-		size(small) rows(1) region(lwidth(none)) span) xtit(" ")  ///
-		xlab(2.5 `" "Involved in how"  "HH income is spent" "' 7.5 `" "Has influence" "on how HH income" "is spent if disagreement" "' 12.5 `" "Likely to voice" "disagreement on how" "HH income is spent`'" "' 17.5`" "Has final decision" "on how own"  "money is spent" "', ///
-		labsize(small) notick)  
+		gen marker = _n
 		
-gr export "$fig/HH_DecisionMaking.png", replace
+		replace marker = marker - 1 if cat==3
+		replace marker = marker + 1 if cat==2
+		sort marker
+		gen gender = cat==1 | cat==3
+	
+	*Generate a Marker Variable
+		levelsof(indic), local(lvls)
+		foreach l in `lvls'{
+			local l2 = `l'-1
+			if `l'>1{
+			replace marker = marker + `l2' if indic==`l'
+					}
+					}
+*Generate Figure	
+	twoway 	(bar est marker if cat == 1, bcolor("227 89 37"))  ///
+			(bar est marker if cat == 3, bcolor("227 89 37") fintensity(inten60))   ///
+			(bar est marker if cat == 2, bcolor("45 171 159"))   ///
+			(bar est marker if cat == 4, bcolor("45 171 159") fintensity(inten60))  , ///
+			ytit("Share", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#6, labsize(small)) ///
+			legend(on order(1 2 3 4) label(1 "Married Females") label(2 "Unmarried Females") ///
+			label(3 "Married Males") label(4 "Unmarried Males") symysize(*.6) symxsize(*.6) ///
+			size(small) rows(1) region(lwidth(none)) span) xtit(" ")  ///
+			xlab(2.5 `" "Involved in how"  "HH income is spent" "' 7.5 `" "Has influence" "on how HH income" "is spent if disagreement" "' 12.5 `" "Likely to voice" "disagreement on how" "HH income is spent`'" "' 17.5`" "Has final decision" "on how own"  "money is spent" "', ///
+			labsize(small) notick)  
+		
+	gr export "$fig/HH_DecisionMaking.png", replace
 }
 
 
@@ -329,95 +413,7 @@ restore
 }
 
 
-*FIGURE: Indonesia financial service heatmap
-{
-use "$final\matchedfin_shp_PODES.dta", clear
-gen bank = r1208ak2 + r1208bk2 +r1208ck2
-gen bank2 = bank > 0
-replace bank2 = 0 if bank == . 
-gen atm = r1209ck2 == 1
-gen agent = r1209gk2 == 1
 
-gen financialserv = bank2 == 1
-replace financialserv = 2 if bank2 == 0 & atm == 1
-replace financialserv = 3 if bank2 == 0 & atm == 0 & agent == 1
-replace financialserv = 4 if _m != 3
-
-drop if _ID == . //dropping the unmatched
-destring provno, replace
-
-
-
-* Indonesia heatmap
-
-	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
-	
-	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
-	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
-	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
-	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
-	label(5 "No Bank Office or ATM, Only Bank Agent") label(6 "No Data") ) ///
-	legorder(lohi) legend(ring(1) position(6) ///
-		rows(1))  
-	/*
-	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM but Agent" 4"No Data", replace
-	lab values financialserv FIN
-	graph pie provno, over(financialserve
-	legend(ring(0) pos(0)) yscale(off)
-	*/
-	
-	gr export "$fig/heatmap_financialserv.png", replace
-}
-
-
-*FIGURE: Indonesia financial service PIE CHART
-{
-use "$final/podes-popbank.dta", clear
-
-collapse (sum) population (count)  id, by(financialserv)
-
-	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM, but Agent" 4"No Data", replace
-	label values financialserv FIN
-
-colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
-
-* Indonesia population pie chart
-graph pie population, over(financialserv) legend(off) ///
-	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
-	title("Population", size(vhuge)) ///
-	plotregion(color(white) fcolor(white)) ///
-	name("population", replace) plotregion(margin(zero))
-
-* Indonesia location pie chart
-graph pie id, over(financialserv) legend(off) ///
-	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
-	title("Villages", size(vhuge)) ///
-	plotregion(color(white) fcolor(white)) ///
-	name("village", replace)  plotregion(margin(zero))
-
-graph combine population village 
-
- 		 gr export "$fig/heatmappie.png", replace
-		 
-*Legend on its own
-	local new = _N + 1
-    set obs `new'
-	replace financialserv = 4 if financialserv==.
-		replace population =1 if financialserv==4
-	
-	
-	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
-	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
-	
-	
-	gr export "$fig/heatmap_legend1.png", replace
-
-	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
-	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
-	
-	
-	gr export "$fig/heatmap_legend2.png", replace
-}
 
 
 *FIGURE: Phone Use Capabilities
@@ -793,12 +789,13 @@ use "$final/fii-routput-varimp.dta", clear
 			}
 
 }
+
 *Figure: Var Importance
 {
 	foreach Sample in Male Female{
 	use "$final/fii-routput-varimp.dta", clear	
 		
-			keep if sample=="`Sample'"
+		keep if sample=="`Sample'"
 		gsort -Importance_rf
 		gen Rank = _n	
 		keep if Rank<101
@@ -810,13 +807,15 @@ use "$final/fii-routput-varimp.dta", clear
 	local dige own_mobilephoneYes own_smartphoneYes phonetasks_ever5 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_week2 ability_internetcomplete phoneusage_basic_n12 phonetasks_bas_today2 phonetasks_bas_month2 ability_navmenucomplete ability_callcomplete phonetasks_bas_today1 ability_textcomplete phoneusage_adv_n12 ability_dwldappcomplete phonetasks_today1 ability_internetnone ability_fintranscomplete ability_dwldappnone phonetasks_ever2 phonetasks_adv_week2 ability_navmenunone phoneusage_adv_n3 phonetasks_adv_today2 phonetasks_month5 phonetasks_adv_month3 ability_textnone phonetasks_week5 phonetasks_today2 ability_navmenusome
 
 	local idown has_TaxCardYes has_DrivLicYes
+	
 	local gov money_govt_asstYes bpjs_healthYes  bpjs_laborYes has_KTPYes
-	local ses money_scholarshipYes poverty_binYes fridgeYes used_sharedYes money_dom_remitYes read_bahasagood can_readsomehelp scooterYes read_bahasasomewhatbadly write_bahasagood cookfuelfas
-	local eco jobtypeHousewife workertypeHousewife/husband employment_maleWageorsalaryemployee jobsectorservice employment_maleSelf-employed income_pctalittle workertypeWorkingfull-timewithreg.salary income_pctabouthalf workertypeSelf-employed jobtypeSelfEmply workertypeWorkingoccassionally,irregularpay/seasonal income_pctalmostall workertypeFull-timestudent jobtypeStudent jobsectorlaborer jobtypeIrreg money_agYes
+	
+	local ses poverty_binYes fridgeYes used_sharedYes money_dom_remitYes read_bahasagood can_readsomehelp scooterYes money_scholarshipYes read_bahasasomewhatbadly write_bahasagood cookfuelfas jobtypeHousewife workertypeHousewife/husband employment_maleWageorsalaryemployee jobsectorservice employment_maleSelf-employed income_pctalittle workertypeWorkingfull-timewithreg.salary income_pctabouthalf workertypeSelf-employed jobtypeSelfEmply workertypeWorkingoccassionally,irregularpay/seasonal income_pctalmostall workertypeFull-timestudent jobtypeStudent jobsectorlaborer jobtypeIrreg money_agYes highestedu_femalePrimary highestedu_respondentPrimary highestedu_respondentJr.High highestedu_respondentHSVocational highestedu_femaleJrHigh highestedu_femaleVocationalHSlevel money_ownYes
 
 	
-	local demo trust_in_systemstrongagree highestedu_femalePrimary highestedu_respondentPrimary highestedu_respondentJr.High provinceProvince9 provinceProvince11 highestedu_respondentHSVocational hh_num_females1 voice_disagreementvlikely hh_num_females2 multi_distmorethan5km urbanUrban invovle_beybasicsvinvolved any_teenage_girlsYes finaldec_ownmoneystrongagree atm_distbtwn1and5km hh_num_males1 pos_distbtwn1and5km hh_num_males2 males_9t121 finaldec_hhincstrongagree resp_age_binage40to45  invovle_basicsvinvolved bank_distbtwn1and5km influence_spendingalmostall insur_distmorethan5km rel_hh_headspouse hh_head_femYes atm_distbtwn.5and1km resp_age_binage35to40 atm_distlessthan.5km hh_size4 pos_distmorethan5km hh_members4 invovle_hhincvinvolved highestedu_femaleJrHigh hh_head_age_binage35to40 hh_size3 provinceProvince10 know_mobilemoneyYes pawnshop_distbtwn1and5km hh_members3 bank_distmorethan5km use_mobilemoneyYes trust_in_systemsomeagree hh_head_age_binage45to50 fems_9t121 multi_distbtwn1and5km laku_distbtwn1and5km hh_size5 pawnshop_distmorethan5km hh_head_age_binage40to45 finaldec_ownmoneysomeagree finaldec_hhincsomeagree provinceProvince33 males_u41 coop_distbtwn1and5km influence_spendingmost money_ownYes males_5t81 highestedu_femaleVocationalHSlevel marriedYes any_teenage_boysYes invovle_hhincvuninvolved influence_spendingnone invovle_hhincsomeuninvolved sh_micro_distbtwn1and5km money_bus_less10Yes laku_distbtwn.5and1km mta_distbtwn1and5km voice_disagreementsomelikely bank_distbtwn.5and1km  invovle_beybasicsneither
-
+	local demo provinceProvince9 provinceProvince11  hh_num_females1 hh_num_females2 multi_distmorethan5km urbanUrban any_teenage_girlsYes atm_distbtwn1and5km hh_num_males1 pos_distbtwn1and5km hh_num_males2 males_9t121 resp_age_binage40to45   bank_distbtwn1and5km  insur_distmorethan5km rel_hh_headspouse hh_head_femYes atm_distbtwn.5and1km resp_age_binage35to40 atm_distlessthan.5km hh_size4 pos_distmorethan5km hh_members4 hh_head_age_binage35to40 hh_size3 provinceProvince10 know_mobilemoneyYes pawnshop_distbtwn1and5km hh_members3 bank_distmorethan5km use_mobilemoneyYes hh_head_age_binage45to50 fems_9t121 multi_distbtwn1and5km laku_distbtwn1and5km hh_size5 pawnshop_distmorethan5km hh_head_age_binage40to45  provinceProvince33 males_u41 coop_distbtwn1and5km  males_5t81 marriedYes any_teenage_boysYes  sh_micro_distbtwn1and5km money_bus_less10Yes laku_distbtwn.5and1km mta_distbtwn1and5km  bank_distbtwn.5and1km  
+	
+	local agency trust_in_systemstrongagree voice_disagreementvlikely invovle_beybasicsvinvolved finaldec_ownmoneystrongagree finaldec_hhincstrongagree invovle_basicsvinvolved influence_spendingalmostall invovle_hhincvinvolved trust_in_systemsomeagree finaldec_ownmoneysomeagree finaldec_hhincsomeagree influence_spendingmost invovle_hhincvuninvolved influence_spendingnone invovle_hhincsomeuninvolved voice_disagreementsomelikely invovle_beybasicsneither
 
 
 
@@ -837,34 +836,42 @@ use "$final/fii-routput-varimp.dta", clear
 			replace varcat = 4 if Variables=="`x'"
 		}	
 		
-	foreach x in `eco'{
+		
+	foreach x in `demo'{
 			replace varcat = 5 if Variables=="`x'"
-		}	
+		}
 		
-		foreach x in `demo'{
+	foreach x in `agency'{
 			replace varcat = 6 if Variables=="`x'"
-		}	
+		}		
 		
-
+	assert !missing(varcat)
+	
 	if "`Sample'"=="Female"{
 		local tit "Females"
-	}
+				}
 	if "`Sample'"=="Male" {
 		local tit "Males"
-	}
-	twoway (bar  Importance Rank if varcat==1, color(gray) lcolor(black)) (bar Importance Rank if varcat==2,  color(red) lcolor(black)) ///
-	(bar  Importance Rank if varcat==3,  color(blue) lcolor(black)) (bar Importance Rank if varcat==4,  color(black) lcolor(black)) ///
-	(bar  Importance Rank if varcat==5,  color(green) lcolor(black)) (bar Importance Rank if varcat==6,  color(yellow) lcolor(black)), ///
-	legend(region(lwidth(none)) order(1 4 2 3 5 6) label(1 "Digital Engagement") label(2 "ID Ownership") label(3 "Gov't Benefits") ///
-	label(4 "SES") label(5 "Economic") label(6 "Demographics") size(small) rows(2)) title({bf:`tit'}, size(medium)) ///
-	name("`tit'", replace) ytitle("Importance") 
+				}
+	
+	twoway 	(bar  Importance Rank if varcat==1, color("242 196 19") lcolor(black)) ///
+			(bar Importance Rank if varcat==2,  color(black) lcolor(black)) ///
+			(bar  Importance Rank if varcat==3,  color("227 89 37") lcolor(black)) ///
+			(bar Importance Rank if varcat==4,  color("104 175 193") fintensity(inten40) lcolor(black)) ///
+			(bar  Importance Rank if varcat==5,  color("45 171 159") lcolor(black)) ///
+			(bar Importance Rank if varcat==6,  color(gray) lcolor(black)), ///
+			legend(region(lwidth(none)) order(1 4 2 3 5 6) ///
+			label(1 "Digital Engagement") label(2 "ID Ownership") label(3 "Gov't Benefits") ///
+			label(4 "SES/Economic") label(5 "Demographics/Other") label(6 "Agency/Trust") ///
+			size(small) rows(2)) title({bf:`tit'}, size(medium)) ///
+			name("`tit'", replace) ytitle("Importance") 
 
-	}
+					}
 
 
 	grc1leg Males Females, ycommon col(1) 	
 		
-				 gr export "$wpfig/rftop100.png", replace
+				 gr export "$fig/rftop100.png", replace
 
 	
 }
