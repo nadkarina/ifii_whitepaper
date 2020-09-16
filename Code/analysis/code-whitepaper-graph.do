@@ -145,21 +145,76 @@ use "$final/fii2018.dta", clear
 	gen withdrawagent= bi_e11c=="1" if any_withdraw==1		
 	gen withdrawother= bi_e11v=="1" if any_withdraw==1
 
+	preserve 
+		collapse (mean) any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent [w=weight]
+		xpose, clear varname
+		rename v1 Overall
+		
+		tempfile overall
+		save "`overall'"
+	restore
 	
-lab var dep_teller "\MyIndent Teller"
-lab var dep_atm "\MyIndent ATM"
-lab var dep_agent "\MyIndent Agent"
-lab var dep_other "\MyIndent Other"
-lab var withdrawteller "\MyIndent Teller" 
-lab var withdrawatm "\MyIndent ATM"
-lab var withdrawagent "\MyIndent Agent"
-lab var withdrawother "\MyIndent Other"
-lab var any_withdraw "\bf{Any Withdrawl}"
-lab var any_deposit "\bf{Any Deposit}"
+	preserve
+		collapse (mean) any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent [w=weight], by(female)
+		
+		xpose, clear varname
+		assert v1==0 if _varname=="female"
+		rename v1 Males
+		rename v2 Females
+		
+		drop if _varname=="female"
+		
+		tempfile gender
+		save "`gender'"
+	restore
+	
+	preserve
+		collapse (mean) any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent [w=weight], by(urban)
+		
+		xpose, clear varname
+		assert v1==0 if _varname=="urban"
+		rename v1 Rural
+		rename v2 Urban
+		
+		drop if _varname=="urban"
+		
+		tempfile urban
+		save "`urban'"
+	restore	
+	
+	use "`gender'", clear
+	merge 1:1 _varname using "`urban'", gen(m1)
+	merge 1:1 _varname using "`overall'", gen(m2)
+	
+	g order = 1 if _varname=="any_withdraw"
+		replace order = 2 if _varname=="withdrawteller"
+		replace order = 3 if _varname=="withdrawatm"
+		replace order = 4 if _varname=="withdrawagent"
+		
+		replace order = 5 if _varname=="any_deposit"
+		replace order = 6 if _varname=="dep_teller"
+		replace order = 7 if _varname=="dep_atm"		
+		replace order = 8 if _varname=="dep_agent"		
 
+	lab define order 1"\bf{Any Withdrawl}" 2"\MyIndent Teller" 3"\MyIndent ATM" 4"\MyIndent Agent" 5"\bf{Any Deposit}" 6"\MyIndent Teller" 7"\MyIndent ATM" 8"\MyIndent Agent", replace
+	lab values order order
+	
+		sort order
+		estpost tabstat Males Females Rural Urban Overall if order<5, by(order)  statistics(mean) nototal
+			
+			
+			
+		esttab using "$fig/TransactionTypes.tex" ,  cells("Males(fmt(2)) Females(fmt(2)) Rural(fmt(2)) Urban(fmt(2)) Overall(fmt(2))") not noobs label nomtitle  eqlabels(`e(labels)') varlabels(`e(labels)') collabels(none) ///
+						replace nostar unstack fragment compress tex nonum  /// 
+						prehead("\begin{table}[H] \begin{adjustbox}{max width=1.3\textwidth} \begin{threeparttable} \caption{Method of Account Withdrawls and Deposits} \label{transtypetable} {\begin{tabular}{l*{1}{llllll}} \hline \toprule &{Males}&{Females}&{Rural}&{Urban}&{Overall} \\ \midrule ") 	
+						
+		estpost tabstat Males Females Rural Urban Overall if order>4, by(order)  statistics(mean) nototal
+						
+				esttab using "$fig/TransactionTypes.tex",  cells("Males(fmt(2)) Females(fmt(2)) Rural(fmt(2)) Urban(fmt(2)) Overall(fmt(2))")  not noobs label nomtitle  eqlabels(,none) varlabels(`e(labels)') collabels(none) ///
+						append nostar unstack fragment compress tex nonum  ///				
+					postfoot(" \bottomrule \addlinespace[1.5ex] \end{tabular}} \begin{tablenotes}[flushleft]  \small \item \emph{Notes:} Weighted estimates using 2019 FII data. Only asked of individuals who report currently having an individual or joint savings account at a bank. Captures transactions from the past 6 months. \end{tablenotes} \end{threeparttable} \end{adjustbox} \end{table} \vspace*{-5mm}")
+	
 
-*sumtabgenderurban any_withdraw withdrawteller withdrawatm withdrawagent any_deposit dep_teller dep_atm dep_agent, tablename("${wpfig}/TransactionTypes") title("Method of Account Withdrawls and Deposits") label("transtypetable") notes("Only asked of individuals who report currently having an individual or joint savings account at a bank. Captures transactions from the past 6 months.")
-// NOTE: COULD NOT RUN THE ABOVE LINE, NEED TO INSTALL COMMAND?
 }
 
 
