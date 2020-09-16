@@ -18,13 +18,12 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 		gen province = aa1
 			label var province "Province"
 			
-	*2. District
-		gen district = aa2
-			label var district "District"
-			
-	*3. Urban
+	*2. Urban
 		gen urban = aa7==1
 			label var urban "Urban"
+			lab define urban 0"Rural" 1"Urban"
+			lab values urban urban
+				
 			
 *HOUSEHOLD ROSTER VARAIABLES
 
@@ -392,6 +391,7 @@ egen included = rowtotal(hasatm loanmulti loanpawn loanmicro savmicro loancoop s
 gen included_bin = included>0
 tab2 included_bin anyownership
 
+
 *gen have some bank account but we don't know what type
 
 gen haveother = included_bin==0 & Fnx_ATM_debit==1 & loan_save==0
@@ -404,14 +404,62 @@ lab var haveloanother "Has a Loan - Unknown"
 egen included2 = rowtotal(included haveother haveloanother)
 gen included_bin2 = included2>0
 tab2 included_bin2 anyownership
+	lab var included_bin2 "Any Formal Account Ownership"
+
 
 gen formal = loanbank == 1 | savings == 1
 gen informal = loanmulti == 1 | loanpawn == 1 | loanmicro == 1 | savmicro == 1 | loancoop == 1 | savecoop == 1 
 
 *keep if age > 17
 
+*deposits
+	gen any_deposit = (bi_e9a=="1" | bi_e9b=="1" | bi_e9c=="1" | bi_e9v=="1") if (bi_e9a!=" "| bi_e9b!=" " | bi_e9c!=" " | bi_e9v!=" ")
+	
+	gen dep_teller= bi_e9a=="1" if any_deposit==1
+	gen dep_atm= bi_e9b=="1" if any_deposit==1
+	gen dep_agent= bi_e9c=="1" if any_deposit==1
+	gen dep_other= bi_e9v=="1" if any_deposit==1
 
+*withdrawl
+	gen any_withdraw = (bi_e11a=="1" | bi_e11b=="1" | bi_e11c=="1" | bi_e11v=="1") if (bi_e11a!=" "| bi_e11b!=" " | bi_e11c!=" " | bi_e11v!=" ")
+	gen withdrawteller= bi_e11a=="1" if any_withdraw==1
+	gen withdrawatm= bi_e11b=="1" if any_withdraw==1
+	gen withdrawagent= bi_e11c=="1" if any_withdraw==1		
+	gen withdrawother= bi_e11v=="1" if any_withdraw==1
 
+	gen use_atm_purchase = bi_e28a_a == "1" if bi_e28a_a!= " "
+	gen use_atm_withdraw =  bi_e28a_b == "1" if bi_e28a_b!= " "
+	gen use_atm_paybill =  bi_e28a_c == "1" if bi_e28a_c!= " "
+	gen use_atm_remit =  bi_e28a_d == "1" if bi_e28a_d!= " "
+	gen use_atm_govt =  bi_e28a_e == "1" if bi_e28a_e!= " "
+	gen use_atm_deposit =  bi_e28a_f == "1" if bi_e28a_f!= " "
+	gen use_atm_other =  bi_e28a_v == "1" if bi_e28a_v!= " "
+
+	egen any_atm_use = rowmax(use_atm_purchase use_atm_withdraw use_atm_paybill use_atm_remit use_atm_govt use_atm_deposit use_atm_other)
+	
+*Education Categorial	
+ gen edu_cat = 0 if highestedu_respondent==1 | highestedu_respondent==9
+ replace edu_cat = 1 if highestedu_respondent==2
+ replace edu_cat = 2 if highestedu_respondent==3
+ replace edu_cat = 3 if highestedu_respondent==5
+ replace edu_cat = 4 if highestedu_respondent==6 | highestedu_respondent==7 | highestedu_respondent==8
+ 
+	lab define edu_cat 0"None" 1"Primary" 2"Jr High" 3"HS" 4"Post HS", replace
+	lab values edu_cat edu_cat
+	
+*Digital capabilities
+ g calls = mt18a_1==3 | mt18a_1==4 if mt18a_1!=-2
+ g navigate = mt18a_2==3 | mt18a_2==4 if mt18a_2!=-2
+ g texts = mt18a_3==3 | mt18a_3==4 if mt18a_3!=-2
+ g internet = mt18a_4==3 | mt18a_4==4 if mt18a_4!=-2
+ g fintrans = mt18a_5==3 | mt18a_5==4 if mt18a_5!=-2
+ g dwldapp = mt18a_6==3 | mt18a_6==4 if mt18a_6!=-2
+ 
+ egen basic = rowtotal(calls navigate texts), missing
+ egen advanced = rowtotal(internet fintrans dwldapp), missing
+ egen totals = rowtotal(basic advanced), missing
+ 	
+	
 save "${final}/fii2018", replace					
 
 
@@ -724,7 +772,6 @@ foreach time in 30days 90days 6mon 1yr{
 				}
 
 	lab define dl1_raw 1"FT Salary" 2"PT Salary" 3"Irreg" 4"Season" 5"SelfEmply" 6"Looking" 7"Housewife" 8"Student" 9"Retire" 10"Disabl" 96"Other" 97"DK"
-	lab def urban 0"Rural" 1"Urban"
 	lab define highestedu_female 0 "No Education" 1 "Primary" 2 "Jr High" 3 "Vocational HS level" 4 "High School" 5 "Diploma"  6 "No female head or spouse", replace
 	lab define highestedu_respondent 1 "No formal education" 2 "Primary" 3 "Jr. High" 5 "HS Vocational" 6 "Diploma" 7 "College Uni" 8 "Post-Graduate Uni" 9 "Informal" 10"Refuse etc", replace
 	lab define income_pct 1 "none" 2"a little" 3"about half" 4"most" 5"almost all"
