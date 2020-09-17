@@ -43,8 +43,7 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 	
 	*3. * Household decision making
 			foreach var of varlist gn1 gn2 gn3 gn4 gn5 gn6 gn7 {
-			replace `var' = .r if `var' == -3
-			replace `var' = .d if `var' == -2
+				replace `var' = . if `var'==-3 
 						}
 			
 		g invovle_hhinc = gn1
@@ -79,7 +78,7 @@ import delimited "${fii}/FII Indonesia 2018 (public+ANONGPS).csv", varnames(1) c
 	*Create version of variables if answer 4 or 5 for figure
 	foreach var in invovle_hhinc influence_spending voice_disagreement finaldec_ownmoney{
 		gen any_`var' = inlist(`var',4,5)
-		replace any_`var' = . if `var'==.d | `var'==.r
+		replace any_`var' = . if `var'==. | `var'==-2
 				}	
 	
 *INFORMATION ABOUT THE RESPONDENT VARIABLES
@@ -915,11 +914,12 @@ replace ability_fintrans = 5 if ability_fintrans==0
 	
 	drop if missing(invovle_hhinc) | missing(invovle_basics) | missing(invovle_beybasics) | missing(influence_spending) | missing(voice_disagreement) | missing(finaldec_hhinc) | missing(finaldec_ownmoney)
 	
-	*drop province
+	*drop some of these
 	drop ownership
 	drop num_income_sources
 	drop num_ids
 	rename Fnx_ATM_debit ownership
+	
 	
 *SAVE DATASET
 	save "${final}/fii-clean-randomforestprofiles.dta", replace

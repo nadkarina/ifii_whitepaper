@@ -531,29 +531,29 @@ use "$final/fii-routput-varimp.dta", clear
 	sort sample, stable
 	by sample: gen Rank = _n
 	
-	gen varlab = "Receives Government Assistance" if Variables=="money_govt_asstYes"
-		replace varlab = "Ever had BPJS Health" if Variables=="bpjs_healthYes"
-		replace varlab = "Owns any Mobile Phone" if Variables=="own_mobilephoneYes"
-		replace varlab = "Has Drivers License" if Variables=="has_DrivLicYes"
-		replace varlab = "Ever had BPJS Labor" if Variables=="bpjs_laborYes"
-		replace varlab = "Owns Smartphone" if Variables=="own_smartphoneYes"
-		replace varlab = "Has Tax Card" if Variables=="has_TaxCardYes"
+	gen varlab = "Receives Government Assistance" if Variables=="money_govt_asst1"
+		replace varlab = "Ever had BPJS Health" if Variables=="bpjs_health1"
+		replace varlab = "Owns any Mobile Phone" if Variables=="own_mobilephone1"
+		replace varlab = "Has Drivers License" if Variables=="has_DrivLic1"
+		replace varlab = "Ever had BPJS Labor" if Variables=="bpjs_labor1"
+		replace varlab = "Owns Smartphone" if Variables=="own_smartphone1"
+		replace varlab = "Has Tax Card" if Variables=="has_TaxCard1"
 		replace varlab = "Highest Education: HS/Vocational" ///
-			if Variables=="highestedu_respondentHS Vocational"
+			if Variables=="highestedu_respondent5"
 		replace varlab = "Has done 2 basic phone tasks in past week" ///
 			if Variables=="phonetasks_bas_week2"
 		replace varlab = "Has done 2 basic phone tasks in past month" ///
 			if Variables=="phonetasks_bas_month2"
-		replace varlab = "Female" if Variables=="femaleYes"
+		replace varlab = "Female" if Variables=="female1"
 		replace varlab = "Has done all three advanced phone tasks" ///
 			if Variables=="phonetasks_adv_ever3"
-		replace varlab = "Receives scholarship" if Variables=="money_scholarshipYes"
+		replace varlab = "Receives scholarship" if Variables=="money_scholarship1"
 		replace varlab = "Has done all five phone tasks" if Variables=="phonetasks_ever5"
-		replace varlab = "Housewife" if Variables=="jobtypeHousewife"
+		replace varlab = "Housewife" if Variables=="jobtype7"
 		replace varlab = "Has complete ability to make/receive a call on a mobile" ///
-			if Variables=="ability_callcomplete"
+			if Variables=="ability_call4"
 		replace varlab = "Trusts Financial Providers to Keep Personal Information Private" ///
-			if Variable=="trust_in_systemstrong agree"
+			if Variable=="trust_in_system5"
 
 		assert !missing(varlab) if Rank<=10
 
@@ -644,23 +644,24 @@ foreach Sample in Male Female{
 
 	replace Variables = subinstr(Variables," ", "", .)
 
+	
 *Digital Engagement	
-	local dige own_mobilephoneYes own_smartphoneYes phonetasks_ever5 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_week2 ability_internetcomplete phoneusage_basic_n12 phonetasks_bas_today2 phonetasks_bas_month2 ability_navmenucomplete ability_callcomplete phonetasks_bas_today1 ability_textcomplete phoneusage_adv_n12 ability_dwldappcomplete phonetasks_today1 ability_internetnone ability_fintranscomplete ability_dwldappnone phonetasks_ever2 phonetasks_adv_week2 ability_navmenunone phoneusage_adv_n3 phonetasks_adv_today2 phonetasks_month5 phonetasks_adv_month3 ability_textnone phonetasks_week5 phonetasks_today2 ability_navmenusome
+	local dige ability_call4 ability_dwldapp1 ability_dwldapp4 ability_fintrans4 ability_internet1 ability_internet4 ability_navmenu4 ability_text4 own_mobilephone1 own_smartphone1 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_month2 phonetasks_bas_today1 phonetasks_bas_today2 phonetasks_bas_week2 phonetasks_ever5 phonetasks_today1 phoneusage_adv_n12 phoneusage_basic_n12 used_shared1 ability_navmenu1 ability_navmenu3 ability_text1 laku_dist2 phonetasks_adv_today2 phonetasks_adv_week2 phonetasks_ever2 phonetasks_month5 phonetasks_today2 phoneusage_adv_n3
 
 *ID Ownership	
-	local idown has_TaxCardYes has_DrivLicYes
+	local idown has_DrivLic1 has_TaxCard1
 	
 *Gov't Assistance	
-	local gov money_govt_asstYes bpjs_healthYes  bpjs_laborYes has_KTPYes
+	local gov bpjs_health1 bpjs_labor1 has_KTP1 money_govt_asst1
 	
 *SES/Economic	
-	local ses poverty_binYes fridgeYes used_sharedYes money_dom_remitYes read_bahasagood can_readsomehelp scooterYes money_scholarshipYes read_bahasasomewhatbadly write_bahasagood cookfuelfas jobtypeHousewife workertypeHousewife/husband employment_maleWageorsalaryemployee jobsectorservice employment_maleSelf-employed income_pctalittle workertypeWorkingfull-timewithreg.salary income_pctabouthalf workertypeSelf-employed jobtypeSelfEmply workertypeWorkingoccassionally,irregularpay/seasonal income_pctalmostall workertypeFull-timestudent jobtypeStudent jobsectorlaborer jobtypeIrreg money_agYes highestedu_femalePrimary highestedu_respondentPrimary highestedu_respondentJr.High highestedu_respondentHSVocational highestedu_femaleJrHigh highestedu_femaleVocationalHSlevel money_ownYes
+	local ses can_read2 employment_male3 employment_male5 fridge1 highestedu_female1 highestedu_female2 highestedu_female3 highestedu_respondent2 highestedu_respondent3 highestedu_respondent5 income_pct2 income_pct3 jobsector7 jobtype7 money_dom_remit1 money_own1 money_scholarship1 poverty_bin1 read_bahasa4 scooter1 workertype1 workertype5 write_bahasa4 cookfuel2 income_pct5 jobsector10 jobtype3 jobtype5 jobtype8 money_ag1 money_bus_less101 read_bahasa3 workertype3 workertype4 workertype6
 
 *Demographics/Other	
-	local demo provinceProvince9 provinceProvince11  hh_num_females1 hh_num_females2 multi_distmorethan5km urbanUrban any_teenage_girlsYes atm_distbtwn1and5km hh_num_males1 pos_distbtwn1and5km hh_num_males2 males_9t121 resp_age_binage40to45   bank_distbtwn1and5km  insur_distmorethan5km rel_hh_headspouse hh_head_femYes atm_distbtwn.5and1km resp_age_binage35to40 atm_distlessthan.5km hh_size4 pos_distmorethan5km hh_members4 hh_head_age_binage35to40 hh_size3 provinceProvince10 know_mobilemoneyYes pawnshop_distbtwn1and5km hh_members3 bank_distmorethan5km use_mobilemoneyYes hh_head_age_binage45to50 fems_9t121 multi_distbtwn1and5km laku_distbtwn1and5km hh_size5 pawnshop_distmorethan5km hh_head_age_binage40to45  provinceProvince33 males_u41 coop_distbtwn1and5km  males_5t81 marriedYes any_teenage_boysYes  sh_micro_distbtwn1and5km money_bus_less10Yes laku_distbtwn.5and1km mta_distbtwn1and5km  bank_distbtwn.5and1km  
+	local demo any_teenage_girls1 atm_dist1 atm_dist2 atm_dist3 bank_dist2 bank_dist3 bank_dist4 fems_9t121 hh_head_age_bin5 hh_head_age_bin6 hh_head_age_bin7 hh_head_fem1 hh_members3 hh_members4 hh_num_females1 hh_num_females2 hh_num_males1 hh_num_males2 hh_size3 hh_size4 hh_size5 insur_dist4  know_mobilemoney1 laku_dist3 males_9t121 males_u41 multi_dist3 multi_dist4 pawnshop_dist3 pawnshop_dist4 pos_dist3 pos_dist4 province10 province11 province9 rel_hh_head2 resp_age_bin5 resp_age_bin6 use_mobilemoney1 urban1 any_teenage_boys1 coop_dist3 married1 sh_micro_dist3
 	
 *Agency/Trust	
-	local agency trust_in_systemstrongagree voice_disagreementvlikely invovle_beybasicsvinvolved finaldec_ownmoneystrongagree finaldec_hhincstrongagree invovle_basicsvinvolved influence_spendingalmostall invovle_hhincvinvolved trust_in_systemsomeagree finaldec_ownmoneysomeagree finaldec_hhincsomeagree influence_spendingmost invovle_hhincvuninvolved influence_spendingnone invovle_hhincsomeuninvolved voice_disagreementsomelikely invovle_beybasicsneither
+	local agency finaldec_hhinc5 finaldec_ownmoney4 finaldec_ownmoney5 influence_spending5 invovle_basics5 invovle_beybasics5 invovle_hhinc5  trust_in_system4 trust_in_system5 voice_disagreement5 influence_spending1 influence_spending4 invovle_beybasics3 invovle_hhinc1 invovle_hhinc2 voice_disagreement4
 
 *Now Code Accordingly
 	foreach x in `dige'{
