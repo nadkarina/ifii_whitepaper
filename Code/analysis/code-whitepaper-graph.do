@@ -3,101 +3,95 @@
 * AUTHORS: Nick Wisely, Natalie Theys, Lolita Moorena, Nadia Setiabudi
 * PURPOSE: Create tables and figures for whitepaper
 * DATE CREATED: 23 June 2020
-* LAST MODIFIED: 25 August 2020 by Nadia Setiabudi
+* LAST MODIFIED: 17 September 2020 by Nadia Setiabudi
 * ******************************************************************************
 
-// ************************************************
-// * FIGURE 1:	Village-Level Access to 	   	   *
-// *  Financial Services	   					   *
-// ************************************************
-// {
+************************************************
+* FIGURE 1:	Village-Level Access to 	   	   *
+*  Financial Services	   					   *
+************************************************
+{
 
-// use "$final\matchedfin_shp_PODES.dta", clear
-// gen bank = r1208ak2 + r1208bk2 +r1208ck2
-// gen bank2 = bank > 0
-// replace bank2 = 0 if bank == . 
-// gen atm = r1209ck2 == 1
-// gen agent = r1209gk2 == 1
+use "$final\matchedfin_shp_PODES.dta", clear
+gen bank = r1208ak2 + r1208bk2 +r1208ck2
+gen bank2 = bank > 0
+replace bank2 = 0 if bank == . 
+gen atm = r1209ck2 == 1
+gen agent = r1209gk2 == 1
 
-// gen financialserv = bank2 == 1
-// replace financialserv = 2 if bank2 == 0 & atm == 1
-// replace financialserv = 3 if bank2 == 0 & atm == 0 & agent == 1
-// replace financialserv = 4 if _m != 3
+gen financialserv = bank2 == 1
+replace financialserv = 2 if bank2 == 0 & atm == 1
+replace financialserv = 3 if bank2 == 0 & atm == 0 & agent == 1
+replace financialserv = 4 if _m != 3
 
-// drop if _ID == . //dropping the unmatched
-// destring provno, replace
+drop if _ID == . //dropping the unmatched
+destring provno, replace
 
 
 
-// * Indonesia heatmap
+* Indonesia heatmap
 
-// 	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
+	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 	
-// 	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
-// 	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
-// 	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
-// 	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
-// 	label(5 "No Bank Office or ATM, Only Bank Agent") label(6 "No Data") ) ///
-// 	legorder(lohi) legend(ring(1) position(6) ///
-// 		rows(1))  
-// 	/*
-// 	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, but ATM" 3 "No Bank/ATM but Agent" 4"No Data", replace
-// 	lab values financialserv FIN
-// 	graph pie provno, over(financialserve
-// 	legend(ring(0) pos(0)) yscale(off)
-// 	*/
+	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
+	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
+	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
+	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
+	label(5 "No Bank Office or ATM, Only Bank Agent") label(6 "No Data") ) ///
+	legorder(lohi) legend(ring(1) position(6) ///
+		rows(1))  
 	
-// 	gr export "$fig/heatmap_financialserv.png", replace
+ 	gr export "$fig/heatmap_financialserv.png", replace
 
 
-// *SUB-FIGURE: Indonesia financial service PIE CHART
+*SUB-FIGURE: Indonesia financial service PIE CHART
 
-// use "$final/podes-popbank.dta", clear
+ use "$final/podes-popbank.dta", clear
 
-// collapse (sum) population (count)  id, by(financialserv)
+ collapse (sum) population (count)  id, by(financialserv)
 
-// 	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, Only ATM" 3 "No Bank/ATM, Only Agent" 4"No Data", replace
-// 	label values financialserv FIN
+ 	label define FIN 0 "No Bank" 1 "Bank" 2 "No Bank, Only ATM" 3 "No Bank/ATM, Only Agent" 4"No Data", replace
+ 	label values financialserv FIN
 
-// colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
+ colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 
-// * Indonesia population pie chart
-// graph pie population, over(financialserv) legend(off) ///
-// 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
-// 	title("Population", size(vhuge)) ///
-// 	plotregion(color(white) fcolor(white)) ///
-// 	name("population", replace) plotregion(margin(zero))
+* Indonesia population pie chart
+	graph pie population, over(financialserv) legend(off) ///
+ 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+ 	title("Population", size(vhuge)) ///
+ 	plotregion(color(white) fcolor(white)) ///
+ 	name("population", replace) plotregion(margin(zero))
 
-// * Indonesia location pie chart
-// graph pie id, over(financialserv) legend(off) ///
-// 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
-// 	title("Villages", size(vhuge)) ///
-// 	plotregion(color(white) fcolor(white)) ///
-// 	name("village", replace)  plotregion(margin(zero))
+* Indonesia location pie chart
+	graph pie id, over(financialserv) legend(off) ///
+ 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+ 	title("Villages", size(vhuge)) ///
+ 	plotregion(color(white) fcolor(white)) ///
+ 	name("village", replace)  plotregion(margin(zero))
 
-// graph combine population village 
+ graph combine population village 
 
-//  		 gr export "$fig/heatmappie.png", replace
+  		 gr export "$fig/heatmappie.png", replace
 		 
-// *Make the Legend on its own
-// 	local new = _N + 1
-//     set obs `new'
-// 	replace financialserv = 4 if financialserv==.
-// 		replace population =1 if financialserv==4
+*Make the Legend on its own
+ 	local new = _N + 1
+     set obs `new'
+ 	replace financialserv = 4 if financialserv==.
+ 		replace population =1 if financialserv==4
 	
 	
-// 	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
-// 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
+ 	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+ 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
 	
 	
-// 	gr export "$fig/heatmap_legend1.png", replace
+ 	gr export "$fig/heatmap_legend1.png", replace
 
-// 	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
-// 	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
+ 	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
+ 	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
 	
 	
-// 	gr export "$fig/heatmap_legend2.png", replace
-// }
+ 	gr export "$fig/heatmap_legend2.png", replace
+}
 
 ************************************************
 * FIGURE 2:	Influence on and Involvement	   *
