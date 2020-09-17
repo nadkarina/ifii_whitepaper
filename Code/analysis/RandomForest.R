@@ -195,5 +195,5 @@ accuracy_table <- rbind(accstat, accstat_f, accstat_m)
 varimp_table <- rbind(rf_varimp_hot, rf_varimp_hot_f, rf_varimp_hot_m)
 
 # EXPORT
-write_dta(varimp_table, "fii-routput-varimp_2.dta")
-write_dta(accuracy_table, "fii-routput-accuracy_2.dta")
+write_dta(varimp_table, "fii-routput-varimp.dta")
+write_dta(accuracy_table, "fii-routput-accuracy.dta")
