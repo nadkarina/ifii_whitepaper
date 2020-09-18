@@ -12,8 +12,16 @@ cap log close
 
 * B) WORKING FOLDER PATH
 *gl path gl path ".../GitHub/ifii_whitepaper"
+// Set path to GitHub folder
 gl path "C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper"
 gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
+
+*gl rpath ""
+// Set path to R
+// NOTE: MUST ALSO CHANGE WORKING DIRECTORY IN THE FOLLOWING R SCRIPT:
+//			"GitHub/ifii_whitepaper/Code/analysis/RandomForest.R"
+gl rpath "C:\Program Files\R\R-4.0.2\bin\x64\R.exe"
+
 
 *** The following paths will update automatically ***
 gl raw "$path/Database/Raw Data"
@@ -33,6 +41,7 @@ gl fig "$path/Tables_Figures"
 
 * C) INSTALL PACKAGES AND SCHEMES
 *cap ssc install fre
+*cap ssc install rsource, replace
 *net from http://www.stata-journal.com/software/sj15-4		// Install dropmiss
 *net install dm0085											// Install dropmiss
 *net install dm89_2											// Install dropmiss
@@ -72,7 +81,8 @@ do "$code/build/code-susenas-clean.do"
 ********************************************************************************
 
 *** Random Forest (R codes) ***
-
+// NOTE: CHANGE WORKING DIRECTORY IN R SCRIPT BEFORE RUNNING THE FOLLOWING LINE
+rsource using "$code/analysis/RandomForest.R", rpath($rpath) roptions(`"--vanilla"')
 
 *** Tables and Figures ***
 do "$code/analysis/code-whitepaper-graph.do"	
