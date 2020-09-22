@@ -14,7 +14,7 @@ cap log close
 *gl path gl path ".../GitHub/ifii_whitepaper"
 // Set path to GitHub folder
 gl path "C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper"
-gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
+*gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
 
 *gl rpath ""
 // Set path to R
@@ -47,6 +47,8 @@ gl fig "$path/Tables_Figures"
 *net install dm89_2											// Install dropmiss
 *net from http://www.stata-journal.com/software/sj14-2/		// Install estpost
 *net install st0085_2										// Install estpost
+*net from http://www.stata-journal.com/software/sj8-2		// Install labmask
+*net install gr0034											// Install labmask
 
 // NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
 

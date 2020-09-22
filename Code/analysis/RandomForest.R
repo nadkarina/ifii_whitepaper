@@ -14,7 +14,8 @@ p_load("glmnet", "abcrf", "tidyverse", "haven", "grf", "randomForest", "dplyr", 
 ##############################
 
 #Change working directory to where the data file is saved
-setwd("/Users/USER/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
+#setwd("/Users/USER/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
+setwd("C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
 
 #read in data file
 raw_fii_dataset <- read_dta("fii-clean-randomforestprofiles.dta") 
@@ -131,6 +132,30 @@ matrix_train_m <- as.data.frame(cbind(matrix_train_outcome_m,matrix_train_m))
 colnames(matrix_train_m)[1] <- c("ownership")
 matrix_test_m <- as.data.frame(cbind(matrix_test_outcome_m,matrix_test_m))
 colnames(matrix_test_m)[1] <- c("ownership")
+
+#Ensure all are factors
+matrix_train_hot <- mutate_if(matrix_train_hot, is.character, as.factor)
+matrix_test_hot <- mutate_if(matrix_test_hot, is.character, as.factor)
+matrix_train <- mutate_if(matrix_train, is.character, as.factor)
+matrix_test <- mutate_if(matrix_test, is.character, as.factor)
+
+matrix_train_hot_f <- mutate_if(matrix_train_hot_f, is.character, as.factor)
+matrix_test_hot_f <- mutate_if(matrix_test_hot_f, is.character, as.factor)
+matrix_train_f <- mutate_if(matrix_train_f, is.character, as.factor)
+matrix_test_f <- mutate_if(matrix_test_f, is.character, as.factor)
+
+matrix_train_hot_m <- mutate_if(matrix_train_hot_m, is.character, as.factor)
+matrix_test_hot_m <- mutate_if(matrix_test_hot_m, is.character, as.factor)
+matrix_train_m <- mutate_if(matrix_train_m, is.character, as.factor)
+matrix_test_m <- mutate_if(matrix_test_m, is.character, as.factor)
+
+matrix_test_outcome <- as.factor(matrix_test_outcome)
+matrix_test_outcome_f <- as.factor(matrix_test_outcome_f)
+matrix_test_outcome_m <- as.factor(matrix_test_outcome_m)
+matrix_train_outcome <- as.factor(matrix_train_outcome)
+matrix_train_outcome_f <- as.factor(matrix_train_outcome_f)
+matrix_train_outcome_m <- as.factor(matrix_train_outcome_m)
+
 
 #######################
 ####RUN THE MODELS####
