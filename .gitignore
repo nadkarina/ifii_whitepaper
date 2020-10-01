@@ -14,6 +14,7 @@
 *.shx
 *.xml
 *.zip
+*.pdf
 .DS_Store
 Code/.DS_Store
 Database/Final Data/.Rhistory
