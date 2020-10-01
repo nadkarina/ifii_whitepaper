@@ -8,7 +8,7 @@ The whitepaper draws on the following four datasets:
 * the 2016 Survey on Financial Inclusion and Access (SOFIA)
 * the 2018 Village Potential Statistics (PODES)**
 
-The whitepaper also analyzes 1 set of primary data, which is included in the repository:
+The whitepaper also includes analysis of 1 set of primary data, which is included in the repository:
 * Online survey on DFS adoption during Covid-19
 
 \* We combined the SUSENAS data with poverty line data available on Badan Pusat Statistik (BPS) [website](https://www.bps.go.id/subject/23/kemiskinan-dan-ketimpangan.html). \
@@ -24,7 +24,14 @@ To request access to the 2017 Survey on Financial Inclusion Access (SOFIA), cont
 
 
 ### Online survey on DFS adoption during Covid-19
+We conducted an online survey with approximately 2,000 respondents to gauge how the pandemic has impacted DFS use, including digital banking, e-money and e-commerce. We used the Google Surveys platform, which uses convenience sampling. The online survey respondents are younger, more likely to live in urban areas, and more likely to live on Java. Estimates are weighted to match demographic characteristics in the 2019 SUSENAS, though this cannot fully address the fact that the online survey respondents are a highly selected, digitally engaged group. Even so many had never used DFS prior to the pandemic (52% of women and 45% of men). Thus, our results provide a snapshot of how a group of “likely adopters” is faring during COVID-19.
 
+The survey was divided into 2 parts:
+* General population
+* Screened: respondents who never used DFS since February 2020 were screened out of the survey
+* Pooled: the pooled dataset is merged from the general population and the screened survey. Questions included in the pooled dataset are questions 1-5 in each survey.
+
+The survey questionnaire and codebook are included along with the datasets.
 
 
 ### Database structure
@@ -63,3 +70,13 @@ Database
 ```
 
 ## Codes
+For a push-button replication, use "0 master-whitepaper.do". Ensure that you have:
+* Set the path to the GitHub folder
+* Set the path to R program
+* Set working directory in R script "RandomForest.R"
+* Install the necessary Stata packages
+* Placed all secondary datasets following the above folder structure
+
+Alternatively, to recreate particular figures and tables, you can run the associated lines in "Code/analysis/code-whitepaper-graph.do"
+* Check which of the four datasets the table/figure is drawn from
+* Ensure you have run the relevant data preparation code (in "Code/build") for the correct dataset
