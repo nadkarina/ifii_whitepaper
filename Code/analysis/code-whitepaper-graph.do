@@ -372,7 +372,7 @@ mat colnames res= est ul ll cat outcome grpvar
 			graphregion(color(white) fcolor(white)) ///
 			yscale(range(0 1)) ylab(#5, labsize(small)) ///
 			legend(off)  ///
-			xlab(1 "15-24" 2 "25-24" 3 "35-44" ///
+			xlab(1 "15-24" 2 "25-34" 3 "35-44" ///
 			4 "45-54" 5 "55+", angle(hor) labsize(medsmall) notick) ///			
 			xtit(" ") title("C. Age", size(medsmall)) name("age", replace)	
 				
@@ -404,7 +404,7 @@ mat colnames res= est ul ll cat outcome grpvar
 			graphregion(color(white) fcolor(white)) ///
 			yscale(range(0 .5)) ylab(#5, labsize(small)) ///
 			legend(off)  ///
-			xlab(1 "15-24" 2 "25-24" 3 "35-44" ///
+			xlab(1 "15-24" 2 "25-34" 3 "35-44" ///
 			4 "45-54" 5 "55+", angle(hor) labsize(medsmall) notick) ///			
 			xtit(" ") title("F. Age", size(medsmall)) name("age", replace)	
 				
@@ -421,7 +421,7 @@ mat colnames res= est ul ll cat outcome grpvar
 	ycommon title("E-Money Usage", size(medsmall))	col(1)	name("g2", replace)	
 	
 *Combine
-	graph combine g1 g2, col(2) xsize(*.75)
+	graph combine g1 g2, col(2)
 			
 	gr export "$fig/sesgradient.png", replace
 }	
