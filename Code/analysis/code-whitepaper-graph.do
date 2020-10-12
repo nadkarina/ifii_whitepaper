@@ -30,7 +30,7 @@ destring provno, replace
 
 
 * Indonesia heatmap
-
+// ENGLISH
 	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 	
 	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
@@ -42,7 +42,20 @@ destring provno, replace
 		rows(1))  
 	
  	gr export "$fig/heatmap_financialserv.png", replace
-
+	
+// INDONESIAN
+	colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
+	
+	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
+	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
+	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
+	legend(label(2 "Tidak Ada Layanan Bank")) legend(label(3 "Kantor Bank") label(4 "Tidak Ada Kantor Bank, Hanya ATM") ///
+	label(5 "Tidak Ada Kantor Bank atau ATM, Hanya Agen Bank") label(6 "Tidak Ada Data") ) ///
+	legorder(lohi) legend(ring(1) position(6) ///
+		rows(1))  
+	
+ 	gr export "$fig/heatmap_financialserv_IND.png", replace
+	
 
 *SUB-FIGURE: Indonesia financial service PIE CHART
 
@@ -55,6 +68,7 @@ destring provno, replace
 
  colorpalette gs12 "45 171 159" "242 196 19" "227 89 37" gs15
 
+// ENGLISH 
 * Indonesia population pie chart
 	graph pie population, over(financialserv) legend(off) ///
  	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
@@ -72,6 +86,26 @@ destring provno, replace
  graph combine population village 
 
   		 gr export "$fig/heatmappie.png", replace
+		 
+// INDONESIAN
+* Indonesia population pie chart
+	graph pie population, over(financialserv) legend(off) ///
+ 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+ 	title("Populasi", size(vhuge)) ///
+ 	plotregion(color(white) fcolor(white)) ///
+ 	name("population_ind", replace) plotregion(margin(zero))
+
+* Indonesia location pie chart
+	graph pie id, over(financialserv) legend(off) ///
+ 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15)) ///
+ 	title("Desa", size(vhuge)) ///
+ 	plotregion(color(white) fcolor(white)) ///
+ 	name("village_ind", replace)  plotregion(margin(zero))
+
+ graph combine population_ind village_ind
+
+  		 gr export "$fig/heatmappie_IND.png", replace
+
 		 
 *Make the Legend on its own
  	local new = _N + 1
@@ -92,6 +126,7 @@ destring provno, replace
 	
  	gr export "$fig/heatmap_legend2.png", replace
 }
+
 
 ************************************************
 * FIGURE 2:	Influence on and Involvement	   *
@@ -170,7 +205,8 @@ destring provno, replace
 			replace marker = marker + `l2' if indic==`l'
 					}
 					}
-*Generate Figure	
+*Generate Figure
+// ENGLISH	
 	twoway 	(bar est marker if cat == 1, bcolor("227 89 37"))  ///
 			(bar est marker if cat == 3, bcolor("227 89 37") fintensity(inten60))   ///
 			(bar est marker if cat == 2, bcolor("45 171 159"))   ///
@@ -185,6 +221,22 @@ destring provno, replace
 			labsize(small) notick)  
 		
 	gr export "$fig/HH_DecisionMaking.png", replace
+	
+// INDONESIA
+	twoway 	(bar est marker if cat == 1, bcolor("227 89 37"))  ///
+			(bar est marker if cat == 3, bcolor("227 89 37") fintensity(inten60))   ///
+			(bar est marker if cat == 2, bcolor("45 171 159"))   ///
+			(bar est marker if cat == 4, bcolor("45 171 159") fintensity(inten60))  , ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#6, labsize(small)) ///
+			legend(on order(1 2 3 4) label(1 "Wanita Kawin") label(2 "Wanita Tidak Kawin") ///
+			label(3 "Pria Kawin") label(4 "Pria Tidak Kawin") symysize(*.6) symxsize(*.6) ///
+			size(small) rows(1) region(lwidth(none)) span) xtit(" ")  ///
+			xlab(2.5 `" "Terlibat dalam bagaimana"  "penghasilan RT digunakan" "' 7.5 `" "Memiliki pengaruh" "bagaimana penghasilan" "digunakan jika" "tidak setuju"' 12.5 `" "Cenderung menyampaikan" "ketidaksetujuan pada" "bagaimana penghasilan" "RT digunakan`'" "' 17.5`" "Membuat keputusan akhir" "pada bagaimana uang"  "sendiri digunakan" "', ///
+			labsize(small) notick)  
+		
+	gr export "$fig/HH_DecisionMaking_IND.png", replace	
 }
 
 ************************************************
@@ -356,6 +408,7 @@ mat colnames res= est ul ll cat outcome grpvar
 	drop if est==.
 		
 *Create Figures
+// ENGLISH
 	twoway 	(bar est index if grpvar == 1 & outcome==1, barwidth(.9)) ///
 			(rcap ul ll index if grpvar==1 & outcome==1, lcol(gs4)), ///
 			ytit("Share", size(small)) ///
@@ -424,6 +477,77 @@ mat colnames res= est ul ll cat outcome grpvar
 	graph combine g1 g2, col(2)
 			
 	gr export "$fig/sesgradient.png", replace
+
+	
+// INDONESIAN
+	twoway 	(bar est index if grpvar == 1 & outcome==1, barwidth(.9)) ///
+			(rcap ul ll index if grpvar==1 & outcome==1, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#5, labsize(small)) ///
+			legend(off)  ///
+			xlab(1 "Tidak sekolah" 2 "SD" 3 "SMP" ///
+			4 "SMA" 5 "Pasca SMA", angle(hor) labsize(medsmall) notick) ///			
+			xtit(" ") title("A. Pendidikan", size(medsmall)) name("education", replace)
+				
+	twoway 	(bar est index if grpvar == 3 & outcome==1, bcolor("45 171 159") barwidth(.9)) ///
+			(rcap ul ll index if grpvar==3 & outcome==1, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#5, labsize(small)) ///
+			legend(off)  ///
+			xlab(1 "15-24" 2 "25-34" 3 "35-44" ///
+			4 "45-54" 5 "55+", angle(hor) labsize(medsmall) notick) ///			
+			xtit(" ") title("C. Usia", size(medsmall)) name("age", replace)	
+				
+	twoway 	(bar est index if grpvar == 2 & outcome==1,  bcolor("242 196 19")  barwidth(.9)) ///
+			(rcap ul ll index if grpvar==2 & outcome==1, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#5, labsize(small)) ///
+			legend(off)  ///
+			xlab(1 "Pedesaan" 2 "Perkotaan" , angle(hor) labsize(medsmall) notick) ///			
+			xtit(" ") title("B. Perkotaan/Pedesaan", size(medsmall)) name("urban", replace)					
+			
+	graph combine education urban age, ///
+	ycommon title("Kepemilikan Rekening", size(medsmall))	col(1)	name("g1_ind", replace)	
+			
+	twoway 	(bar est index if grpvar == 1 & outcome==2, barwidth(.9)) ///
+			(rcap ul ll index if grpvar==1 & outcome==2, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 .5)) ylab(#5, labsize(medsmall)) ///
+			legend(off)  ///
+			xlab(1 "Tidak sekolah" 2 "SD" 3 "SMP" ///
+			4 "SMA" 5 "Pasca SMA", angle(hor) labsize(small) notick) ///			
+			xtit(" ") title("D. Pendidikan", size(medsmall)) name("education", replace)
+				
+	twoway 	(bar est index if grpvar == 3 & outcome==2,  bcolor("45 171 159")  barwidth(.9)) ///
+			(rcap ul ll index if grpvar==3 & outcome==2, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 .5)) ylab(#5, labsize(small)) ///
+			legend(off)  ///
+			xlab(1 "15-24" 2 "25-34" 3 "35-44" ///
+			4 "45-54" 5 "55+", angle(hor) labsize(medsmall) notick) ///			
+			xtit(" ") title("F. Usia", size(medsmall)) name("age", replace)	
+				
+	twoway 	(bar est index if grpvar == 2 & outcome==2,  bcolor("242 196 19")   barwidth(.9)) ///
+			(rcap ul ll index if grpvar==2 & outcome==2, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 .5)) ylab(#5, labsize(small)) ///
+			legend(off)  ///
+			xlab(1 "Pedesaan" 2 "Perkotaan" , angle(hor) labsize(medsmall) notick) ///			
+			xtit(" ") title("E. Pedesaan/Perkotaan", size(medsmall)) name("urban", replace)				
+				
+	graph combine education urban age, ///
+	ycommon title("Penggunaan Uang Elektronik", size(medsmall))	col(1)	name("g2_ind", replace)	
+	
+*Combine
+	graph combine g1_ind g2_ind, col(2)
+			
+	gr export "$fig/sesgradient_IND.png", replace
 }	
 
 ************************************************
@@ -692,7 +816,8 @@ foreach Sample in Male Female{
 		local tit "Males"
 				}
 
-*Create Figure				
+*Create Figure
+// ENGLISH				
 	twoway 	(bar  Importance Rank if varcat==1, color("242 196 19") lcolor(black)) ///
 			(bar Importance Rank if varcat==2,  color(black) lcolor(black)) ///
 			(bar  Importance Rank if varcat==3,  color("227 89 37") lcolor(black)) ///
@@ -704,14 +829,110 @@ foreach Sample in Male Female{
 			label(4 "SES/Economic") label(5 "Demographics/Other") label(6 "Agency/Trust") ///
 			size(small) rows(2)) title({bf:`tit'}, size(medium)) ///
 			name("`tit'", replace) ytitle("Importance") 
-
-					}
+			
+	}
+					
 
 
 	grc1leg Males Females, ycommon col(1) 	
 		
 	gr export "$fig/rftop100.png", replace
+	
 }
+
+{
+*First Males then Females	
+foreach Sample in Male Female{
+	use "$final/fii-routput-varimp.dta", clear	
+
+		keep if sample=="`Sample'"
+		gsort -Importance_rf
+		gen Rank = _n	
+		keep if Rank<101
+
+*Create a Variable to Track Category of Predictor Variable		
+	gen varcat = .
+
+	replace Variables = subinstr(Variables," ", "", .)
+
+	
+*Digital Engagement	
+	local dige ability_call4 ability_dwldapp1 ability_dwldapp4 ability_fintrans4 ability_internet1 ability_internet4 ability_navmenu4 ability_text4 own_mobilephone1 own_smartphone1 phonetasks_adv_ever3 phonetasks_bas_ever2 phonetasks_bas_month2 phonetasks_bas_today1 phonetasks_bas_today2 phonetasks_bas_week2 phonetasks_ever5 phonetasks_today1 phoneusage_adv_n12 phoneusage_basic_n12 used_shared1 ability_navmenu1 ability_navmenu3 ability_text1 laku_dist2 phonetasks_adv_today2 phonetasks_adv_week2 phonetasks_ever2 phonetasks_month5 phonetasks_today2 phoneusage_adv_n3
+
+*ID Ownership	
+	local idown has_DrivLic1 has_TaxCard1
+	
+*Gov't Assistance	
+	local gov bpjs_health1 bpjs_labor1 has_KTP1 money_govt_asst1
+	
+*SES/Economic	
+	local ses can_read2 employment_male3 employment_male5 fridge1 highestedu_female1 highestedu_female2 highestedu_female3 highestedu_respondent2 highestedu_respondent3 highestedu_respondent5 income_pct2 income_pct3 jobsector7 jobtype7 money_dom_remit1 money_own1 money_scholarship1 poverty_bin1 read_bahasa4 scooter1 workertype1 workertype5 write_bahasa4 cookfuel2 income_pct5 jobsector10 jobtype3 jobtype5 jobtype8 money_ag1 money_bus_less101 read_bahasa3 workertype3 workertype4 workertype6
+
+*Demographics/Other	
+	local demo any_teenage_girls1 atm_dist1 atm_dist2 atm_dist3 bank_dist2 bank_dist3 bank_dist4 fems_9t121 hh_head_age_bin5 hh_head_age_bin6 hh_head_age_bin7 hh_head_fem1 hh_members3 hh_members4 hh_num_females1 hh_num_females2 hh_num_males1 hh_num_males2 hh_size3 hh_size4 hh_size5 insur_dist4  know_mobilemoney1 laku_dist3 males_9t121 males_u41 multi_dist3 multi_dist4 pawnshop_dist3 pawnshop_dist4 pos_dist3 pos_dist4 province10 province11 province9 rel_hh_head2 resp_age_bin5 resp_age_bin6 use_mobilemoney1 urban1 any_teenage_boys1 coop_dist3 married1 sh_micro_dist3
+	
+*Agency/Trust	
+	local agency finaldec_hhinc5 finaldec_ownmoney4 finaldec_ownmoney5 influence_spending5 invovle_basics5 invovle_beybasics5 invovle_hhinc5  trust_in_system4 trust_in_system5 voice_disagreement5 influence_spending1 influence_spending4 invovle_beybasics3 invovle_hhinc1 invovle_hhinc2 voice_disagreement4
+
+*Now Code Accordingly
+	foreach x in `dige'{
+			replace varcat = 1 if Variables=="`x'"
+		}
+		
+	foreach x in `idown'{
+			replace varcat = 2 if Variables=="`x'"
+		}
+		
+	foreach x in `gov'{
+			replace varcat = 3 if Variables=="`x'"
+		}
+		
+	foreach x in `ses'{
+			replace varcat = 4 if Variables=="`x'"
+		}	
+		
+		
+	foreach x in `demo'{
+			replace varcat = 5 if Variables=="`x'"
+		}
+		
+	foreach x in `agency'{
+			replace varcat = 6 if Variables=="`x'"
+		}		
+		
+	assert !missing(varcat)
+	
+	if "`Sample'"=="Female"{
+		local tit "Wanita"
+				}
+	if "`Sample'"=="Male" {
+		local tit "Pria"
+				}
+
+*Create Figure
+// INDONESIAN				
+	twoway 	(bar  Importance Rank if varcat==1, color("242 196 19") lcolor(black)) ///
+			(bar Importance Rank if varcat==2,  color(black) lcolor(black)) ///
+			(bar  Importance Rank if varcat==3,  color("227 89 37") lcolor(black)) ///
+			(bar Importance Rank if varcat==4,  color("104 175 193") fintensity(inten40) lcolor(black)) ///
+			(bar  Importance Rank if varcat==5,  color("45 171 159") lcolor(black)) ///
+			(bar Importance Rank if varcat==6,  color(gray) lcolor(black)), ///
+			legend(region(lwidth(none)) order(1 4 2 3 5 6) ///
+			label(1 "Keterlibatan Digital") label(2 "Kepemilikan ID") label(3 "Bantuan Pemerintah") ///
+			label(4 "SES/Ekonomi") label(5 "Demografi/Lainnya") label(6 "Agensi/Kepercayaan") ///
+			size(small) rows(2)) title({bf:`tit'}, size(medium)) ///
+			name("`tit'", replace) ytitle("Kepentingan") 
+			
+	}
+					
+
+
+	grc1leg Pria Wanita, ycommon col(1) 	
+		
+	gr export "$fig/rftop100_IND.png", replace
+	
+}
+
 
 ************************************************
 * TABLE 7: Estimates of Remittance Use         *
@@ -835,7 +1056,9 @@ replace marker = 6 + (counter - 1) * 7 if dfs == 5
 	**add a little space between non-user and users for ease of readability
 	replace marker = marker +.1 if marker>4
 	replace marker = marker +.1 if marker>12
-	
+
+
+// ENGLISH	
 twoway (bar est marker if dfs == 1) || ///
 		(bar est marker if dfs == 2) || ///
 		(bar est marker if dfs == 4) || ///
@@ -847,7 +1070,7 @@ twoway (bar est marker if dfs == 1) || ///
 		graphregion(color(white) fcolor(white)) ///
 		yscale(range(0 .4)) ylab(#5, labsize(small)) ///
 		xtit("") ///
-		legend(region(lwidth(none))  row(2) on order(1 2 3 4 5 6) label(1 "First Time Usee") ///
+		legend(region(lwidth(none))  row(2) on order(1 2 3 4 5 6) label(1 "First Time User") ///
 		label(2 "Use More Often") label(3 "Use Same Amount") ///
 		label(4 "Use Less Often") label(5 "Stopped Use") ///
 		label(6 "Never Use") ///
@@ -856,6 +1079,28 @@ twoway (bar est marker if dfs == 1) || ///
 			
 			
 	gr export "$fig/onlinesurvey_gender.png", replace
+	
+// INDONESIAN	
+twoway (bar est marker if dfs == 1) || ///
+		(bar est marker if dfs == 2) || ///
+		(bar est marker if dfs == 4) || ///
+		(bar est marker if dfs == 3) || ///
+		(bar est marker if dfs == 6) || ///
+		(bar est marker if dfs == 5, fcolor("74 156 101")) || ///
+		(rcap ul ll marker, lcol(gs4) lwidth(thin) msize(tiny)), ///
+		ytit("Proporsi", size(small)) ///
+		graphregion(color(white) fcolor(white)) ///
+		yscale(range(0 .4)) ylab(#5, labsize(small)) ///
+		xtit("") ///
+		legend(region(lwidth(none))  row(3) on order(1 2 3 4 5 6) label(1 "Pengguna Pertama Kali") ///
+		label(2 "Menggunakan Lebih Sering") label(3 "Menggunakan Sama") ///
+		label(4 "Menggunakan Lebih Jarang") label(5 "Berhenti Menggunakan") ///
+		label(6 "Tidak Pernah Menggunakan") ///
+		size(small)) ///
+		xlabel(3.5 "Wanita" 10.75 "Pria", angle(hor) labsize(small) notick)
+			
+			
+	gr export "$fig/onlinesurvey_gender_IND.png", replace	
 
 }
 
@@ -906,7 +1151,8 @@ gen index = _n
 	replace index = index + 2 if index==5 | index==6
 	replace index = index + 1 if index==3 | index==4
 
-*Create Figure	
+*Create Figure
+// ENGLISH	
 	twoway 	(bar est index if female==0 & catvar<7, yscale(range(0) axis(1)) ytitle("Share", size(small) axis(1)))  /// 
 		(bar est index if female==1 & catvar<7) ///
 		(bar est index if female==0 & catvar>6, yaxis(2) yscale(range(0) axis(2)) ytitle("Number of Tasks", size(small) orientation(rvertical) axis(2)) fcolor("227 89 37") )  /// 
@@ -919,7 +1165,20 @@ gen index = _n
 		xline(18.5, lpattern(dash) lcolor(gs13))  
 			
  	 gr export "$fig/phonecapability.png", replace
-
+	 
+// INDONESIAN
+	twoway 	(bar est index if female==0 & catvar<7, yscale(range(0) axis(1)) ytitle("Proporsi", size(small) axis(1)))  /// 
+		(bar est index if female==1 & catvar<7) ///
+		(bar est index if female==0 & catvar>6, yaxis(2) yscale(range(0) axis(2)) ytitle("Jumlah Aktivitas", size(small) orientation(rvertical) axis(2)) fcolor("227 89 37") )  /// 
+		(bar est index if female==1 & catvar>6, yaxis(2) fcolor("45 171 159")) ///
+		(rcap ul ll index if catvar<7, lcolor(black)) ///
+		(rcap ul ll index if catvar>6, lcolor(black) yaxis(2)) , ///
+		xtitle(" ") ///
+		legend(row(1) size(small) region(lwidth(none)) order(1 "Pria" 2 "Wanita"))  ///
+		xlabel( 1.5 "Telepon" 4.5 "Navigasi Menu" 7.5 "SMS" 10.5 "Mencari di Internet" 13.5 "Transaksi Fin." 16.5 "Unduh App" 20.5"Aktivitas Dasar" 23.5"Aktivitas Lanjutan" 26.5"Total Aktivitas", angle(45)) ///
+		xline(18.5, lpattern(dash) lcolor(gs13))  
+			
+ 	 gr export "$fig/phonecapability_IND.png", replace
 }
 
 ************************************************
@@ -970,6 +1229,7 @@ mat colnames res= est ul ll dl_ability edu
 	g index = edu * 3 - 2 
 	g index2 = index + dl_ability - 1
 
+// ENGLISH	
 twoway 	(bar est index2 if dl_ability == 1) || ///
 		(bar est index2 if dl_ability == 2) || ///
 		(rcap ul ll index2, lcol(gs4)), ///
@@ -983,6 +1243,22 @@ twoway 	(bar est index2 if dl_ability == 1) || ///
 			xtit(" ", size(small))
 			
 	gr export "$fig/litbyeducation.png", replace
+	
+// INDONESIAN
+twoway 	(bar est index2 if dl_ability == 1) || ///
+		(bar est index2 if dl_ability == 2) || ///
+		(rcap ul ll index2, lcol(gs4)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 1)) ylab(#5, labsize(small)) ///
+			legend(on order(1 2) label(1 "Kemampuan Penuh") label(2 "Kemampuan Penuh atau Beberapa") ///
+			size(small) region(lwidth(none)) rows(1)) ///
+			xlab(1.5 "Tidak Berpendidikan Formal" 4.5 "SD" 7.5 "SMP" ///
+			10.5 "SMA" 13.5 "Universitas", angle(hor) labsize(vsmall) notick) ///
+			xtit(" ", size(small))
+			
+	gr export "$fig/litbyeducation_IND.png", replace
+		
 }
 
 ************************************************
@@ -1000,10 +1276,11 @@ use "$final/sofia-merge.dta", clear
 	g dig_send = cashonly_send==0 & (remittance_sent_method==1 | remittance_sent_method==3 | remittance_sent_method==4 | remittance_sent_method==5) if remittance_sent==1
 	
 	collapse (mean) cashonly_rec dig_rec cashonly_send dig_send [weight=wt_vil], by(female_ind) 
-	
+
 	label define female 0"Males" 1"Females"
 	lab values female_ind female
-	
+
+// ENGLISH		
 	graph bar cashonly_rec dig_rec , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") size(small) region(lwidth(none))) 	title("Receipt of Remittances", size(medsmall)) name("a", replace) intensity(80)
 
 	graph bar cashonly_send dig_send , over(female) stack legend(on  label(1 "Cash Only") label(2 "Digital") size(small) region(lwidth(none))) 	title("Sending of Remittances", size(medsmall)) name("b", replace)	 intensity(80)
@@ -1011,6 +1288,19 @@ use "$final/sofia-merge.dta", clear
 	grc1leg a b, ycommon
 			
 	gr export "$fig/remittancechannel.png", replace
+	
+	
+// INDONESIAN
+	label define female_ind 0"Pria" 1"Wanita"
+	lab values female_ind female_ind
+	
+	graph bar cashonly_rec dig_rec , over(female) stack legend(on  label(1 "Hanya Tunai") label(2 "Digital") size(small) region(lwidth(none))) 	title("Penerimaan Remitansi", size(medsmall)) name("a", replace) intensity(80)
+
+	graph bar cashonly_send dig_send , over(female) stack legend(on  label(1 "Hanya Tunai") label(2 "Digital") size(small) region(lwidth(none))) 	title("Pengiriman Remitansi", size(medsmall)) name("b", replace)	 intensity(80)
+	
+	grc1leg a b, ycommon
+			
+	gr export "$fig/remittancechannel_IND.png", replace	
 }
 
 ************************************************
@@ -1092,7 +1382,8 @@ use "$final/susenas-merge19.dta", clear
 	replace ul = temp
 	bys socprot (category): gen temp2 = temp[_n-1]
 	replace ll = temp2
-	
+
+// ENGLISH	
 	twoway 	(bar est socprot if category == 2, barw(.5)) || ///
 			(rbar ul ll socprot if category == 3, barw(.5)) || ///
 			(rbar ul ll socprot if category == 4, barw(.5)), ///
@@ -1106,6 +1397,21 @@ use "$final/susenas-merge19.dta", clear
 			
 			
 	gr export "$fig/account_shroud_stack.png", replace
+
+// INDONESIAN	
+	twoway 	(bar est socprot if category == 2, barw(.5)) || ///
+			(rbar ul ll socprot if category == 3, barw(.5)) || ///
+			(rbar ul ll socprot if category == 4, barw(.5)), ///
+			ytit("Proporsi", size(small)) ///
+			graphregion(color(white) fcolor(white)) ///
+			yscale(range(0 0.6)) ylab(#5, labsize(small)) ///
+			xtit("") ///
+			xlab(1 "Semua Rumah Tangga" 2 "Rumah Tangga PKH" 3 "Rumah Tangga BPNT" 4 "Rumah Tangga PIP", angle(hor) labsize(small) notick) ///	
+			legend( on order(1 2 3) label(1 "Hanya KRT dan/atau pasangan") ///
+			label(2 "KRT dan anggota rumah tangga lainnya")  label(3 "Hanya anggota rumah tangga lainnya") rows(2) size(small) region(lwidth(none)))  
+			
+			
+	gr export "$fig/account_shroud_stack_IND.png", replace	
 }
 
 ************************************************
@@ -1174,6 +1480,7 @@ bys female (buy): gen temp2 = temp[_n-1]
 gen marker = female
 replace marker = 3 if female == 0
 
+// ENGLISH
 twoway	(bar est marker if buy == 1) || ///
 		(rbar ul ll marker if buy == 2) || ///
 		(rbar ul ll marker if buy == 3), ///
@@ -1186,5 +1493,19 @@ twoway	(bar est marker if buy == 1) || ///
 		xlabel(1 "Females" 3 "Males", angle(hor) labsize(small) notick)
 			
 	gr export "$fig/onlinesurvey_ecomm.png", replace
+	
+// INDONESIAN
+twoway	(bar est marker if buy == 1) || ///
+		(rbar ul ll marker if buy == 2) || ///
+		(rbar ul ll marker if buy == 3), ///
+		ytit("Proporsi", size(small)) ///
+		graphregion(color(white) fcolor(white)) ///
+		yscale(range(0 1)) ylab(#5, labsize(small)) ///
+		xscale(range(0 4)) xtit("") ///
+		legend(size(small) region(lwidth(none)) on order(1 2 3) label(1 "Tidak Pernah Daring") ///
+		label(2 "Beberapa Daring") label(3 "Kebanyakan Daring") row(1)) ///
+		xlabel(1 "Wanita" 3 "Pria", angle(hor) labsize(small) notick)
+			
+	gr export "$fig/onlinesurvey_ecomm_IND.png", replace	
 }
 
