@@ -1171,8 +1171,8 @@ gen index = _n
 		(bar est index if female==1 & catvar>6, yaxis(2) fcolor("45 171 159")) ///
 		(rcap ul ll index if catvar<7, lcolor(black)) ///
 		(rcap ul ll index if catvar>6, lcolor(black) yaxis(2)) , ///
-		xtitle(" ") ///
-		legend(row(1) size(small) region(lwidth(none)) order(1 "Male" 2 "Female"))  ///
+		xtitle(" ") legend(row(1) size(small) region(lwidth(none)) ///
+		on order(1 "Male" 2 "Female"))  ///
 		xlabel( 1.5 "Calls" 4.5 "Navigate Menu" 7.5 "Text" 10.5 "Search Internet" 13.5 "Fin. Transaction" 16.5 "Download App" 20.5"Basic Tasks" 23.5"Advanced Tasks" 26.5"Total Tasks", angle(45)) ///
 		xline(18.5, lpattern(dash) lcolor(gs13))  
 			
@@ -1185,8 +1185,8 @@ gen index = _n
 		(bar est index if female==1 & catvar>6, yaxis(2) fcolor("45 171 159")) ///
 		(rcap ul ll index if catvar<7, lcolor(black)) ///
 		(rcap ul ll index if catvar>6, lcolor(black) yaxis(2)) , ///
-		xtitle(" ") ///
-		legend(row(1) size(small) region(lwidth(none)) order(1 "Pria" 2 "Wanita"))  ///
+		xtitle(" ") legend(row(1) size(small) region(lwidth(none)) ///
+		on order(1 2) label(1 "Pria") label(2 "Wanita"))  ///
 		xlabel( 1.5 "Telepon" 4.5 "Navigasi Menu" 7.5 "SMS" 10.5 "Mencari di Internet" 13.5 "Transaksi Fin." 16.5 "Unduh App" 20.5"Aktivitas Dasar" 23.5"Aktivitas Lanjutan" 26.5"Total Aktivitas", angle(45)) ///
 		xline(18.5, lpattern(dash) lcolor(gs13))  
 			
