@@ -597,7 +597,7 @@ mat colnames res= est ul ll cat outcome grpvar
 	twoway (bar est marker if urban==0, barw(.45) yla(0(.2)1)) ///
 	(bar est marker if urban==1, barw(.45) yla(0(.2)1))  ///
 	(rcap ul ll marker, mcol(black) lcol(black)), ///
-	legend(order(1 2) label(1 "Rural") label(2 "Urban")  si(small) region(lwidth(none)) span)  ///
+	legend(on order(1 2) label(1 "Rural") label(2 "Urban")  si(small) region(lwidth(none)) span)  ///
 	xlab(1.25 "Withdrawal" 2.75 "Remit/Transfer" 4.25 "Deposit"  5.75 "Gov't Benefits" 7.25 "Purchases" 8.75 "Bill Pay" ,  labsize(small)) ///
 	xtit(" ") ytit("Share") ///
 	graphregion(color(white) fcolor(white))
@@ -609,7 +609,7 @@ mat colnames res= est ul ll cat outcome grpvar
 	twoway (bar est marker if urban==0, barw(.45) yla(0(.2)1)) ///
 	(bar est marker if urban==1, barw(.45) yla(0(.2)1))  ///
 	(rcap ul ll marker, mcol(black) lcol(black)), ///
-	legend(order(1 2) label(1 "Pedesaan") label(2 "Perkotaan")  si(small) region(lwidth(none)) span)  ///
+	legend(on order(1 2) label(1 "Pedesaan") label(2 "Perkotaan")  si(small) region(lwidth(none)) span)  ///
 	xlab(1.25 "Penarikan" 2.75 "Pengiriman" 4.25 "Deposit"  5.75 `""Bantuan" "Pemerintah""' 7.25 "Pembelian" 8.75 `""Pembayaran" "Tagihan"' ,  labsize(small)) ///
 	xtit(" ") ytit("Proporsi") ///
 	graphregion(color(white) fcolor(white))
