@@ -3,7 +3,7 @@ This repository houses the code and documentation of analyses for the Inclusive 
 
 ## Data
 The whitepaper draws on the following four datasets:
-* the 2019 Financial Inclusion Insights Survey (FII)
+* the 2018 Financial Inclusion Insights Survey (FII)
 * the 2019 National Socioeconomic Survey (SUSENAS)*
 * the 2016 Survey on Financial Inclusion and Access (SOFIA)
 * the 2018 Village Potential Statistics (PODES)**
