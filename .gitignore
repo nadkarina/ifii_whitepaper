@@ -1,6 +1,6 @@
 *.dta
 *.dbf
-
+*.xlsx
 *.docx
 *.csv
 *.sav
