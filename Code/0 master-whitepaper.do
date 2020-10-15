@@ -29,7 +29,7 @@ gl raw "$path/Database/Raw Data"
 	gl podes18 "$raw/PODES 2018"
 	gl podes11 "$raw/PODES 2011"
 	gl shp "$raw/Shapefile 2019"
-	gl sofia "$raw/SOFIA 2016"
+	gl sofia "$raw/SOFIA 2017"
 
 gl temp "$path/Database/temp"
 gl final "$path/Database/Final Data"

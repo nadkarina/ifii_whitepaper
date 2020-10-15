@@ -5,7 +5,7 @@ This repository houses the code and documentation of analyses for the Inclusive 
 The whitepaper draws on the following four datasets:
 * the 2018 Financial Inclusion Insights Survey (FII)
 * the 2019 National Socioeconomic Survey (SUSENAS)*
-* the 2016 Survey on Financial Inclusion and Access (SOFIA)
+* the 2017 Survey on Financial Inclusion and Access (SOFIA)
 * the 2018 Village Potential Statistics (PODES)**
 
 The whitepaper also includes analysis of 1 set of primary data, which is included in the repository:
@@ -16,7 +16,7 @@ The whitepaper also includes analysis of 1 set of primary data, which is include
 
 
 ### How to obtain secondary Data
-The 2019 Financial Inclusion Insights Survey (FII) from Kantar can be accessed by submitting a data request form [here](http://finclusion.org/data_fiinder/).
+The 2018 Financial Inclusion Insights Survey (FII) from Kantar can be accessed by submitting a data request form [here](http://finclusion.org/data_fiinder/).
 
 The 2019 National Socioeconomic Survey (SUSENAS), the 2011 and 2018 Village Potential Statistics (PODES), and the 2019 shapefile can be obtained through the Badan Pusat Statistik (BPS) Pelayanan Statistik Terpadu [website](https://webapi.bps.go.id/consumen/88582261b976073c4aee562850e51881?redirect_uri=http://silastik.bps.go.id/v3/index.php/site/login/).
 
