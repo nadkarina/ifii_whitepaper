@@ -14,8 +14,8 @@ p_load("glmnet", "abcrf", "tidyverse", "haven", "grf", "randomForest", "dplyr", 
 ##############################
 
 #Change working directory to where the data file is saved
-#setwd("/Users/USER/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
-setwd("C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
+setwd("/Users/USER/Documents/GitHub/ifii_whitepaper/Database/Final Data/")
+
 
 #read in data file
 raw_fii_dataset <- read_dta("fii-clean-randomforestprofiles.dta") 
