@@ -213,7 +213,7 @@ destring provno, replace
 			legend(on order(1 2 3 4) label(1 "Wanita Kawin") label(2 "Wanita Tidak Kawin") ///
 			label(3 "Pria Kawin") label(4 "Pria Tidak Kawin") symysize(*.6) symxsize(*.6) ///
 			size(small) rows(1) region(lwidth(none)) span) xtit(" ")  ///
-			xlab(2.5 `" "Terlibat dalam bagaimana"  "penghasilan RT digunakan" "' 7.5 `" "Memiliki pengaruh" "bagaimana penghasilan" "digunakan jika" "tidak setuju"' 12.5 `" "Cenderung menyampaikan" "ketidaksetujuan pada" "bagaimana penghasilan" "RT digunakan`'" "' 17.5`" "Membuat keputusan akhir" "pada bagaimana uang"  "sendiri digunakan" "', ///
+			xlab(2.5 `" "Terlibat dalam bagaimana"  "penghasilan digunakan" "' 7.5 `" "Memiliki pengaruh" "bagaimana penghasilan" "digunakan jika" "ada perselisihan"' 12.5 `" "Cenderung menyampaikan" "ketidaksepakatan pada" "bagaimana penghasilan" "digunakan`'" "' 17.5`" "Mengambil keputusan akhir" "pada bagaimana uang"  "sendiri digunakan" "', ///
 			labsize(small) notick)  
 		
 	gr export "$fig/HH_DecisionMaking_IND.png", replace	
