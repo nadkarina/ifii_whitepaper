@@ -20,7 +20,7 @@ The 2018 Financial Inclusion Insights Survey (FII) from Kantar can be accessed b
 
 The 2019 National Socioeconomic Survey (SUSENAS), the 2011 and 2018 Village Potential Statistics (PODES), and the 2019 shapefile can be obtained through the Badan Pusat Statistik (BPS) Pelayanan Statistik Terpadu [website](https://webapi.bps.go.id/consumen/88582261b976073c4aee562850e51881?redirect_uri=http://silastik.bps.go.id/v3/index.php/site/login/).
 
-To request access to the 2017 Survey on Financial Inclusion Access (SOFIA), contact sofia@opml.co.id.
+The 2017 Survey on Financial Inclusion Access (SOFIA) can be accessed [here](https://www.aip-prisma.or.id/aip-rural/en/safira/sofia-download).
 
 
 ### Online survey on DFS adoption during Covid-19
