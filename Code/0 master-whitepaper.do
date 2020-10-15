@@ -1,7 +1,7 @@
 * ******************************************************************************
 * PROJECT: IFII WHITEPAPER
 * AUTHORS: NATALIE THEYS, NICK WISELY, LOLITA MOORENA, NADIA SETIABUDI
-* PURPOSE: master do-file for whitepaper data cleaning and analysis
+* PURPOSE: Master do-file for whitepaper data cleaning and analysis
 * ******************************************************************************
 
 * A) PRELIMINARIES
@@ -11,16 +11,15 @@ clear all
 cap log close
 
 * B) WORKING FOLDER PATH
-*gl path gl path ".../GitHub/ifii_whitepaper"
+gl path ".../GitHub/ifii_whitepaper"
 // Set path to GitHub folder
-gl path "C:/Users/Nadia Setiabudi/Documents/GitHub/ifii_whitepaper"
-*gl path "/Users/theys/Documents/GitHub/ifii_whitepaper"
 
-*gl rpath ""
-// Set path to R
+gl rpath "..."
+// Set path to R, for example:
+//			"C:/Program Files/R/R-4.0.2/bin/x64/R.exe"
 // NOTE: MUST ALSO CHANGE WORKING DIRECTORY IN THE FOLLOWING R SCRIPT:
 //			"GitHub/ifii_whitepaper/Code/analysis/RandomForest.R"
-gl rpath "C:\Program Files\R\R-4.0.2\bin\x64\R.exe"
+
 
 
 *** The following paths will update automatically ***
@@ -42,15 +41,16 @@ gl fig "$path/Tables_Figures"
 * C) INSTALL PACKAGES AND SCHEMES
 *cap ssc install fre
 *cap ssc install rsource, replace
-*net from http://www.stata-journal.com/software/sj15-4		// Install dropmiss
-*net install dm0085											// Install dropmiss
-*net install dm89_2											// Install dropmiss
-*net from http://www.stata-journal.com/software/sj14-2/		// Install estpost
-*net install st0085_2										// Install estpost
-*net from http://www.stata-journal.com/software/sj8-2		// Install labmask
-*net install gr0034											// Install labmask
-
-// NOTE: NEED TO ADD OTHER INSTALLATIONS NEEDED
+// Install dropmiss
+*net from http://www.stata-journal.com/software/sj15-4		
+*net install dm0085											
+*net install dm89_2											
+// Install estpost
+*net from http://www.stata-journal.com/software/sj14-2/		
+*net install st0085_2										
+// Install labmask
+*net from http://www.stata-journal.com/software/sj8-2		
+*net install gr0034											
 
 cd "${code}/analysis"
 set scheme jpal

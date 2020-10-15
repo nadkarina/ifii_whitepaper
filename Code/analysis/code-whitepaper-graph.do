@@ -3,7 +3,7 @@
 * AUTHORS: Nick Wisely, Natalie Theys, Lolita Moorena, Nadia Setiabudi
 * PURPOSE: Create tables and figures for whitepaper
 * DATE CREATED: 23 June 2020
-* LAST MODIFIED: 17 September 2020 by Nadia Setiabudi
+* LAST MODIFIED: 15 October 2020 by Nadia Setiabudi
 * ******************************************************************************
 
 ************************************************
@@ -36,8 +36,8 @@ destring provno, replace
 	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
 	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
 	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
-	legend(label(2 "No bank service")) legend(label(3 "Bank Office") label(4 "No Bank Office, Only ATM") ///
-	label(5 "No Bank Office or ATM, Only Bank Agent") label(6 "No Data") ) ///
+	legend(label(2 "No Bank")) legend(label(3 "Bank") label(4 "No Bank, but ATM") ///
+	label(5 "No Bank/ATM, but Agent") label(6 "No Data") ) ///
 	legorder(lohi) legend(ring(1) position(6) ///
 		rows(1))  
 	
@@ -49,8 +49,8 @@ destring provno, replace
 	spmap financialserv using "$shp/2019shp/INDO_DESA_2019_coord.dta", id(_ID) clmethod(unique) ///
 	ocolor(none ..) fcolor(`r(p)') ndocolor(gs12) ///
 	polygon(data("$final/border_all.dta") ocolor(black) fcolor(none) osize(medium)) ///
-	legend(label(2 "Tidak Ada Layanan Bank")) legend(label(3 "Kantor Bank") label(4 "Tidak Ada Kantor Bank, Hanya ATM") ///
-	label(5 "Tidak Ada Kantor Bank atau ATM, Hanya Agen Bank") label(6 "Tidak Ada Data") ) ///
+	legend(label(2 "Tidak Ada Bank")) legend(label(3 "Bank") label(4 "Tidak Ada Bank, tapi Ada ATM") ///
+	label(5 "Tidak Ada Bank/ATM, tapi Ada Agen") label(6 "Tidak Ada Data") ) ///
 	legorder(lohi) legend(ring(1) position(6) ///
 		rows(1))  
 	
@@ -105,26 +105,6 @@ destring provno, replace
  graph combine population_ind village_ind
 
   		 gr export "$fig/heatmappie_IND.png", replace
-
-		 
-*Make the Legend on its own
- 	local new = _N + 1
-     set obs `new'
- 	replace financialserv = 4 if financialserv==.
- 		replace population =1 if financialserv==4
-	
-	
- 	graph pie population if financial<2, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
- 	pie(1, color(gs12)) pie(2, color("45 171 159")) pie(3, color("242 196 19")) pie(4, color("227 89 37")) pie(5, color(gs15))
-	
-	
- 	gr export "$fig/heatmap_legend1.png", replace
-
- 	graph pie population if financial>1, over(financialserv) legend(all region(lwidth(none)) row(1)) ///
- 	pie(1, color("242 196 19")) pie(2, color("227 89 37")) pie(3, color(gs15))	
-	
-	
- 	gr export "$fig/heatmap_legend2.png", replace
 }
 
 
